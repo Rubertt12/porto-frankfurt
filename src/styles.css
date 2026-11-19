@@ -134,3 +134,5 @@
 @media(max-width:600px){.self-photo-row{align-items:flex-start}.self-photo-row>img,.self-photo-placeholder{width:64px;height:64px;flex-basis:64px}.self-records article{flex-wrap:wrap}}
 
 .admin-person-photo{width:42px;height:42px;border-radius:50%;object-fit:cover;display:block;border:1px solid var(--line,#e5e7eb)}
+
+.resident-package-photo{display:block;width:min(100%,320px);max-height:240px;object-fit:cover;border-radius:12px;margin-top:10px;border:1px solid var(--line,#e5e7eb)}
