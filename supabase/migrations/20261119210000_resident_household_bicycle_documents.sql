@@ -1,33 +1,68 @@
--- Scoped resident documents, household self-service, bicycle inventory and key custody.
+-- Apartment-scoped resident documents and bicycle / key custody.
+-- Family, pet and authorized-visitor tables already exist in this project.
 ALTER TABLE public.documents
   ADD COLUMN IF NOT EXISTS apartment_id uuid REFERENCES public.apartments(id) ON DELETE CASCADE,
   ADD COLUMN IF NOT EXISTS due_date date,
   ADD COLUMN IF NOT EXISTS reference_month text,
   ADD COLUMN IF NOT EXISTS document_number text;
-CREATE INDEX IF NOT EXISTS documents_apartment_created_idx ON public.documents (apartment_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS documents_apartment_created_idx
+  ON public.documents (apartment_id, created_at DESC);
 
--- Replace the broad tenant policy with apartment-aware document access.
-DROP POLICY IF EXISTS tenant_isolation ON public.documents;
-DROP POLICY IF EXISTS documents_manage ON public.documents;
-CREATE POLICY documents_manage ON public.documents FOR ALL TO authenticated
-USING (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role]))
-WITH CHECK (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role]));
+-- Residents can maintain their own private profile details; management retains its existing access.
+DROP POLICY IF EXISTS resident_private_data_self_manage ON public.resident_private_data;
+CREATE POLICY resident_private_data_self_manage
+ON public.resident_private_data FOR ALL TO authenticated
+USING (profile_id = (SELECT auth.uid()))
+WITH CHECK (profile_id = (SELECT auth.uid()));
+
+-- Resident document metadata is visible only when published and global or assigned to their unit.
+-- Existing tenant_isolation and documents_manage policies remain in force.
 DROP POLICY IF EXISTS documents_read_visible_or_staff ON public.documents;
-CREATE POLICY documents_read_visible_or_staff ON public.documents FOR SELECT TO authenticated
+CREATE POLICY documents_read_visible_or_staff
+ON public.documents FOR SELECT TO authenticated
 USING (
   can_access_condominium(condominium_id)
   AND (
-    has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role])
+    has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role])
     OR (is_visible_to_residents = true AND (apartment_id IS NULL OR is_linked_to_apartment(apartment_id)))
   )
 );
 
--- Residents may maintain their own private contact/complementary data only.
-DROP POLICY IF EXISTS resident_private_data_self_manage ON public.resident_private_data;
-CREATE POLICY resident_private_data_self_manage ON public.resident_private_data FOR ALL TO authenticated
-USING (profile_id = (SELECT auth.uid()))
-WITH CHECK (profile_id = (SELECT auth.uid()));
+-- Recreate the existing combined private-file policy with unit-scoped document reads.
+DROP POLICY IF EXISTS private_files_read_authorized ON storage.objects;
+CREATE POLICY private_files_read_authorized ON storage.objects FOR SELECT TO authenticated
+USING (
+  (
+    bucket_id='condo-documents'
+    AND EXISTS (
+      SELECT 1 FROM public.documents d
+      WHERE d.storage_path=objects.name
+        AND can_access_condominium(d.condominium_id)
+        AND (
+          has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role])
+          OR (d.is_visible_to_residents=true AND (d.apartment_id IS NULL OR is_linked_to_apartment(d.apartment_id)))
+        )
+    )
+  )
+  OR (
+    bucket_id='package-photos'
+    AND EXISTS (
+      SELECT 1 FROM public.packages p
+      WHERE p.photo_path=objects.name
+        AND (is_linked_to_apartment(p.apartment_id) OR has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role]))
+    )
+  )
+  OR (
+    bucket_id='occurrence-attachments'
+    AND EXISTS (
+      SELECT 1 FROM public.occurrences o
+      WHERE objects.name=ANY(o.attachment_paths)
+        AND (is_linked_to_apartment(o.apartment_id) OR has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'security'::condo_role]))
+    )
+  )
+);
 
+-- Key inventory and custody log for the condominium bicycle room.
 CREATE TABLE IF NOT EXISTS public.bicycle_keys (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   condominium_id uuid NOT NULL REFERENCES public.condominiums(id) ON DELETE CASCADE,
@@ -54,34 +89,53 @@ CREATE TABLE IF NOT EXISTS public.bicycle_key_movements (
   notes text,
   CHECK (returned_at IS NULL OR returned_at >= issued_at)
 );
-CREATE INDEX IF NOT EXISTS bicycle_key_movements_unit_idx ON public.bicycle_key_movements (apartment_id, issued_at DESC);
-CREATE UNIQUE INDEX IF NOT EXISTS bicycle_key_one_open_movement_idx ON public.bicycle_key_movements (bicycle_key_id) WHERE returned_at IS NULL;
+CREATE INDEX IF NOT EXISTS bicycle_key_movements_unit_idx
+  ON public.bicycle_key_movements (apartment_id, issued_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS bicycle_key_one_open_movement_idx
+  ON public.bicycle_key_movements (bicycle_key_id) WHERE returned_at IS NULL;
 ALTER TABLE public.bicycle_keys ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bicycle_key_movements ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS bicycle_keys_staff_manage ON public.bicycle_keys;
 CREATE POLICY bicycle_keys_staff_manage ON public.bicycle_keys FOR ALL TO authenticated
-USING (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role]))
-WITH CHECK (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role]));
-DROP POLICY IF EXISTS bicycle_key_movements_staff_manage ON public.bicycle_key_movements;
-CREATE POLICY bicycle_key_movements_staff_manage ON public.bicycle_key_movements FOR ALL TO authenticated
-USING (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role]))
+USING (
+  can_access_condominium(condominium_id)
+  AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role])
+)
 WITH CHECK (
   can_access_condominium(condominium_id)
   AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role])
-  AND EXISTS (SELECT 1 FROM public.bicycle_keys k WHERE k.id = bicycle_key_id AND k.condominium_id = bicycle_key_movements.condominium_id)
-  AND EXISTS (SELECT 1 FROM public.apartments a WHERE a.id = apartment_id AND a.condominium_id = bicycle_key_movements.condominium_id)
+);
+DROP POLICY IF EXISTS bicycle_key_movements_staff_manage ON public.bicycle_key_movements;
+CREATE POLICY bicycle_key_movements_staff_manage ON public.bicycle_key_movements FOR ALL TO authenticated
+USING (
+  can_access_condominium(condominium_id)
+  AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role])
+)
+WITH CHECK (
+  can_access_condominium(condominium_id)
+  AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role])
+  AND EXISTS (SELECT 1 FROM public.bicycle_keys k WHERE k.id=bicycle_key_id AND k.condominium_id=bicycle_key_movements.condominium_id)
+  AND EXISTS (SELECT 1 FROM public.apartments a WHERE a.id=apartment_id AND a.condominium_id=bicycle_key_movements.condominium_id)
 );
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.bicycle_keys TO authenticated;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.bicycle_key_movements TO authenticated;
 
--- Keep key status synchronized with issue/return events in the database.
+-- Keep key availability in sync without bypassing row-level security.
 CREATE OR REPLACE FUNCTION public.sync_bicycle_key_status()
-RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = ''
+AS $$
 BEGIN
-  IF TG_OP = 'INSERT' THEN
-    UPDATE public.bicycle_keys SET status = 'in_use', updated_at = now() WHERE id = NEW.bicycle_key_id;
+  IF TG_OP='INSERT' THEN
+    UPDATE public.bicycle_keys
+      SET status='in_use', updated_at=now()
+      WHERE id=NEW.bicycle_key_id;
   ELSIF OLD.returned_at IS NULL AND NEW.returned_at IS NOT NULL THEN
-    UPDATE public.bicycle_keys SET status = 'available', updated_at = now() WHERE id = NEW.bicycle_key_id;
+    UPDATE public.bicycle_keys
+      SET status='available', updated_at=now()
+      WHERE id=NEW.bicycle_key_id;
   END IF;
   RETURN NEW;
 END;
@@ -91,7 +145,7 @@ CREATE TRIGGER sync_bicycle_key_status_after_movement
 AFTER INSERT OR UPDATE OF returned_at ON public.bicycle_key_movements
 FOR EACH ROW EXECUTE FUNCTION public.sync_bicycle_key_status();
 
--- Individual bicycle inventory; concierge/security can change operational status.
+-- Inventory of bicycles owned by / assigned to the condominium.
 CREATE TABLE IF NOT EXISTS public.bicycle_assets (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   condominium_id uuid NOT NULL REFERENCES public.condominiums(id) ON DELETE CASCADE,
@@ -108,39 +162,33 @@ CREATE TABLE IF NOT EXISTS public.bicycle_assets (
   updated_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (condominium_id, asset_code)
 );
-CREATE INDEX IF NOT EXISTS bicycle_assets_condo_status_idx ON public.bicycle_assets (condominium_id, status);
+CREATE INDEX IF NOT EXISTS bicycle_assets_condo_status_idx
+  ON public.bicycle_assets (condominium_id, status);
 ALTER TABLE public.bicycle_assets ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS bicycle_assets_staff_read ON public.bicycle_assets;
 CREATE POLICY bicycle_assets_staff_read ON public.bicycle_assets FOR SELECT TO authenticated
-USING (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role]));
+USING (
+  can_access_condominium(condominium_id)
+  AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role])
+);
 DROP POLICY IF EXISTS bicycle_assets_admin_manage ON public.bicycle_assets;
 CREATE POLICY bicycle_assets_admin_manage ON public.bicycle_assets FOR ALL TO authenticated
-USING (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role]))
-WITH CHECK (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role]));
+USING (
+  can_access_condominium(condominium_id)
+  AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role])
+)
+WITH CHECK (
+  can_access_condominium(condominium_id)
+  AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role])
+);
 DROP POLICY IF EXISTS bicycle_assets_portaria_update ON public.bicycle_assets;
 CREATE POLICY bicycle_assets_portaria_update ON public.bicycle_assets FOR UPDATE TO authenticated
-USING (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['concierge'::condo_role,'security'::condo_role]))
-WITH CHECK (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['concierge'::condo_role,'security'::condo_role]));
-GRANT SELECT, INSERT, UPDATE, DELETE ON public.bicycle_assets TO authenticated;
-
--- Private Storage: path is condominium UUID / apartment UUID or shared / filename.
-INSERT INTO storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
-VALUES ('condo-documents','condo-documents',false,52428800,ARRAY['application/pdf','image/png','image/jpeg','image/webp','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'])
-ON CONFLICT (id) DO UPDATE SET public=false,file_size_limit=52428800,allowed_mime_types=EXCLUDED.allowed_mime_types;
-DROP POLICY IF EXISTS condo_documents_admin_upload ON storage.objects;
-CREATE POLICY condo_documents_admin_upload ON storage.objects FOR INSERT TO authenticated
-WITH CHECK (bucket_id='condo-documents' AND split_part(name,'/',1) ~* '^[0-9a-f-]{36}$' AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role]) AND can_access_condominium(split_part(name,'/',1)::uuid));
-DROP POLICY IF EXISTS condo_documents_scoped_read ON storage.objects;
-CREATE POLICY condo_documents_scoped_read ON storage.objects FOR SELECT TO authenticated
 USING (
-  bucket_id='condo-documents' AND split_part(name,'/',1) ~* '^[0-9a-f-]{36}$'
-  AND can_access_condominium(split_part(name,'/',1)::uuid)
-  AND (
-    has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role])
-    OR split_part(name,'/',2)='shared'
-    OR (split_part(name,'/',2) ~* '^[0-9a-f-]{36}$' AND is_linked_to_apartment(split_part(name,'/',2)::uuid))
-  )
+  can_access_condominium(condominium_id)
+  AND has_condo_role(ARRAY['concierge'::condo_role,'security'::condo_role])
+)
+WITH CHECK (
+  can_access_condominium(condominium_id)
+  AND has_condo_role(ARRAY['concierge'::condo_role,'security'::condo_role])
 );
-DROP POLICY IF EXISTS condo_documents_admin_delete ON storage.objects;
-CREATE POLICY condo_documents_admin_delete ON storage.objects FOR DELETE TO authenticated
-USING (bucket_id='condo-documents' AND split_part(name,'/',1) ~* '^[0-9a-f-]{36}$' AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role]) AND can_access_condominium(split_part(name,'/',1)::uuid));
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.bicycle_assets TO authenticated;
