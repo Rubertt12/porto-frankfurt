@@ -104,6 +104,10 @@ WITH CHECK (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['sup
 DROP POLICY IF EXISTS bicycle_keys_portaria_read ON public.bicycle_keys;
 CREATE POLICY bicycle_keys_portaria_read ON public.bicycle_keys FOR SELECT TO authenticated
 USING (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['concierge'::condo_role,'security'::condo_role]));
+DROP POLICY IF EXISTS bicycle_keys_portaria_update ON public.bicycle_keys;
+CREATE POLICY bicycle_keys_portaria_update ON public.bicycle_keys FOR UPDATE TO authenticated
+USING (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['concierge'::condo_role,'security'::condo_role]))
+WITH CHECK (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['concierge'::condo_role,'security'::condo_role]));
 DROP POLICY IF EXISTS bicycle_key_movements_staff_manage ON public.bicycle_key_movements;
 CREATE POLICY bicycle_key_movements_staff_manage ON public.bicycle_key_movements FOR ALL TO authenticated
 USING (
