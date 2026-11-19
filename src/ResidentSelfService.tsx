@@ -8,7 +8,7 @@ export default function ResidentSelfService({userId,profile,apartment}:{userId:s
   const [privateData,setPrivateData]=useState<Row>({}),[contact,setContact]=useState({full_name:profile?.full_name||'',phone:profile?.phone||'',email:profile?.email||''}),[profilePhoto,setProfilePhoto]=useState<File|null>(null),[profilePhotoUrl,setProfilePhotoUrl]=useState(profile?.avatar_url||'');
   const [person,setPerson]=useState<Row>({}),[pet,setPet]=useState<Row>({}),[visitor,setVisitor]=useState<Row>({authorization_type:'single',is_active:true});
   const [editing,setEditing]=useState<{table:string;id:string}|null>(null),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
-  const signedPhoto=async(path:string|null|undefined)=>{if(!path)return '';if(/^https?:\\/\\//i.test(path))return path;const {data}=await supabase!.storage.from('resident-photos').createSignedUrl(path,3600);return data?.signedUrl||'';};
+  const signedPhoto=async(path:string|null|undefined)=>{if(!path)return '';if(path.startsWith('http://')||path.startsWith('https://'))return path;const {data}=await supabase!.storage.from('resident-photos').createSignedUrl(path,3600);return data?.signedUrl||'';};
   const load=async()=>{
     if(!supabase||!apartment?.id)return;setBusy(true);
     const [f,p,v,d,priv]=await Promise.all([
