@@ -32,6 +32,12 @@
     ],
     "category": "Business",
     "shortDescription": "Gestão condominial offline e online",
-    "longDescription": "Aplicativo desktop do Porto Frankfurt com banco de dados SQLite local."
+    "longDescription": "Aplicativo desktop do Porto Frankfurt com banco de dados SQLite local.",
+    "icon": [
+      "icons/icon.ico",
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png"
+    ]
   }
 }
