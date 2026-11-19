@@ -28,7 +28,7 @@ export default function PlatformPortfolio({profile,onOpen}:any){
  async function createCondo(e:any){
   e.preventDefault();if(!supabase||!profile?.id)return;S(true);E('');OK('');
   const slug=String(form.name).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')+'-'+Math.random().toString(36).slice(2,6);
-  const {data:condo,error:ce}=await supabase.from('condominiums').insert({name:form.name.trim(),slug,created_by:profile.id}).select().single();
+  const {data:condo,error:ce}=await supabase.from('condominiums').insert({name:form.name.trim(),slug,address:form.address||null,created_by:profile.id}).select().single();
   if(ce||!condo){E(ce?.message||'Não foi possível criar o condomínio.');S(false);return;}
   const {error:me}=await supabase.from('condominium_members').insert({condominium_id:condo.id,profile_id:profile.id,role:'syndic',is_active:true});
   if(me){E('Condomínio criado, mas o vínculo de síndico falhou: '+me.message);S(false);await reload();return;}
