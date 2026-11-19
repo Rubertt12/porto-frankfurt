@@ -16,7 +16,7 @@ export default function PlatformPortfolio({profile,onOpen}:any){
    supabase.from('condominium_portfolios').select('*').eq('owner_profile_id',profile.id).maybeSingle(),
    supabase.from('condominium_members').select('condominium_id,role,condominiums(id,name,slug,status,created_at)').eq('profile_id',profile.id).eq('is_active',true)
   ]);
-  if(pf.error)E(pf.error.message);else PF(pf.data);
+  if(pf.error)E(pf.error.message);else if(!pf.data){const {data:newPortfolio,error:portfolioError}=await supabase.from('condominium_portfolios').insert({owner_profile_id:profile.id}).select().single();if(portfolioError)E(portfolioError.message);else PF(newPortfolio);}else PF(pf.data);
   if(mem.error)E(mem.error.message);
   const list=(mem.data||[]).map((m:any)=>Array.isArray(m.condominiums)?m.condominiums[0]:m.condominiums).filter(Boolean);
   C(list);
