@@ -1,140 +1,46 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Building2, Home, Users, Package, CalendarDays, Car, Wallet, Megaphone, AlertTriangle, Plus, Database, HardDrive, CheckCircle2 } from 'lucide-react';
-import { createLocalCondominium, getLocalDatabase, listLocalCondominiums, localDashboardStats, type LocalCondominium } from '../lib/localDatabase';
+import { Building2, Home, Users, Package, CalendarDays, Car, Wallet, Megaphone, AlertTriangle, Plus, Database, HardDrive, CheckCircle2, Pencil, Trash2, ArrowLeft, RefreshCw } from 'lucide-react';
+import { createLocalCondominium, getLocalDatabase, listLocalCondominiums, localDashboardStats, listLocalRows, saveLocalRow, deleteLocalRow, listLocalOptions, type LocalCondominium, type LocalRow } from '../lib/localDatabase';
 import './localWorkspace.css';
 
-type Stats = Record<string, number>;
-
+type Field = { key:string; label:string; type?:string; options?:Array<{value:string|number;label:string}> };
 const modules = [
-  { id: 'units', label: 'Unidades', icon: Home },
-  { id: 'residents', label: 'Moradores', icon: Users },
-  { id: 'packages', label: 'Encomendas', icon: Package },
-  { id: 'reservations', label: 'Reservas', icon: CalendarDays },
-  { id: 'vehicles', label: 'Veículos e vagas', icon: Car },
-  { id: 'finance', label: 'Financeiro', icon: Wallet },
-  { id: 'announcements', label: 'Comunicados', icon: Megaphone },
-  { id: 'occurrences', label: 'Ocorrências', icon: AlertTriangle },
+ {id:'apartments',label:'Unidades',icon:Home,table:'apartments',fields:[{key:'block_id',label:'Bloco',type:'block'},{key:'floor',label:'Andar',type:'number'},{key:'number',label:'Número'},{key:'status',label:'Situação',type:'select',options:[{value:'vacant',label:'Vago'},{value:'occupied',label:'Ocupado'}]}]},
+ {id:'residents',label:'Moradores',icon:Users,table:'residents',fields:[{key:'apartment_id',label:'Unidade',type:'apartment'},{key:'full_name',label:'Nome completo'},{key:'email',label:'E-mail',type:'email'},{key:'phone',label:'Telefone'},{key:'document',label:'CPF / documento'},{key:'resident_type',label:'Vínculo',type:'select',options:[{value:'owner',label:'Proprietário'},{value:'resident',label:'Morador'},{value:'tenant',label:'Inquilino'}]},{key:'is_owner',label:'É proprietário?',type:'checkbox'}]},
+ {id:'packages',label:'Encomendas',icon:Package,table:'packages',fields:[{key:'apartment_id',label:'Unidade',type:'apartment'},{key:'recipient_name',label:'Destinatário'},{key:'carrier',label:'Transportadora'},{key:'tracking_code',label:'Rastreio'},{key:'status',label:'Situação',type:'select',options:[{value:'awaiting_pickup',label:'Aguardando retirada'},{value:'picked_up',label:'Retirada'}]},{key:'notes',label:'Observações',type:'textarea'}]},
+ {id:'reservations',label:'Reservas',icon:CalendarDays,table:'reservations',fields:[{key:'common_area_id',label:'Área comum',type:'area'},{key:'apartment_id',label:'Unidade',type:'apartment'},{key:'reservation_date',label:'Data',type:'date'},{key:'start_time',label:'Início',type:'time'},{key:'end_time',label:'Fim',type:'time'},{key:'status',label:'Situação',type:'select',options:[{value:'pending',label:'Pendente'},{value:'approved',label:'Aprovada'},{value:'rejected',label:'Recusada'}]},{key:'purpose',label:'Finalidade'}]},
+ {id:'vehicles',label:'Veículos',icon:Car,table:'vehicles',fields:[{key:'apartment_id',label:'Unidade',type:'apartment'},{key:'plate',label:'Placa'},{key:'brand',label:'Marca'},{key:'model',label:'Modelo'},{key:'color',label:'Cor'}]},
+ {id:'parking_spaces',label:'Vagas',icon:Car,table:'parking_spaces',fields:[{key:'space_code',label:'Identificação'},{key:'apartment_id',label:'Unidade',type:'apartment'},{key:'status',label:'Situação',type:'select',options:[{value:'available',label:'Disponível'},{value:'occupied',label:'Ocupada'},{value:'blocked',label:'Bloqueada'}]},{key:'notes',label:'Observações'}]},
+ {id:'common_areas',label:'Áreas comuns',icon:Building2,table:'common_areas',fields:[{key:'name',label:'Nome'},{key:'area_type',label:'Tipo'},{key:'capacity',label:'Capacidade',type:'number'},{key:'rules',label:'Regras',type:'textarea'}]},
+ {id:'announcements',label:'Comunicados',icon:Megaphone,table:'announcements',fields:[{key:'title',label:'Título'},{key:'body',label:'Mensagem',type:'textarea'},{key:'category',label:'Categoria'}]},
+ {id:'occurrences',label:'Ocorrências',icon:AlertTriangle,table:'occurrences',fields:[{key:'apartment_id',label:'Unidade',type:'apartment'},{key:'title',label:'Assunto'},{key:'description',label:'Descrição',type:'textarea'},{key:'status',label:'Situação',type:'select',options:[{value:'open',label:'Aberta'},{value:'resolved',label:'Resolvida'}]}]},
+ {id:'financial_transactions',label:'Financeiro',icon:Wallet,table:'financial_transactions',fields:[{key:'description',label:'Descrição'},{key:'transaction_type',label:'Tipo',type:'select',options:[{value:'income',label:'Receita'},{value:'expense',label:'Despesa'}]},{key:'category',label:'Categoria'},{key:'amount_cents',label:'Valor em centavos',type:'number'},{key:'due_date',label:'Vencimento',type:'date'},{key:'status',label:'Situação',type:'select',options:[{value:'pending',label:'Pendente'},{value:'paid',label:'Pago'}]},{key:'apartment_id',label:'Unidade (opcional)',type:'apartment',optional:true}]}
 ];
-
+type Stats = Record<string, number>;
 export default function LocalWorkspace() {
-  const [condominiums, setCondominiums] = useState<LocalCondominium[]>([]);
-  const [activeId, setActiveId] = useState<number | null>(null);
-  const [stats, setStats] = useState<Stats>({});
-  const [loading, setLoading] = useState(true);
-  const [showCreate, setShowCreate] = useState(false);
-  const [name, setName] = useState('Porto Frankfurt - Ambiente de testes');
-  const [address, setAddress] = useState('');
-  const [blocks, setBlocks] = useState(2);
-  const [floors, setFloors] = useState(4);
-  const [unitsPerFloor, setUnitsPerFloor] = useState(4);
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState('');
-
-  const activeCondo = useMemo(() => condominiums.find(c => c.id === activeId) ?? null, [condominiums, activeId]);
-
-  async function refresh() {
-    setLoading(true);
-    try {
-      await getLocalDatabase();
-      const rows = await listLocalCondominiums();
-      setCondominiums(rows);
-      const nextId = activeId && rows.some(row => row.id === activeId) ? activeId : rows[0]?.id ?? null;
-      setActiveId(nextId);
-      if (nextId) setStats(await localDashboardStats(nextId));
-      else setStats({});
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Não foi possível abrir o banco local.');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => { void refresh(); }, []);
-  useEffect(() => {
-    if (!activeId) { setStats({}); return; }
-    void localDashboardStats(activeId).then(setStats).catch(error => setMessage(String(error)));
-  }, [activeId]);
-
-  async function handleCreate(event: React.FormEvent) {
-    event.preventDefault();
-    if (!name.trim()) return;
-    setBusy(true);
-    setMessage('');
-    try {
-      const id = await createLocalCondominium({
-        name,
-        address,
-        blocksCount: blocks,
-        floorsPerBlock: floors,
-        apartmentsPerFloor: unitsPerFloor,
-      });
-      const db = await getLocalDatabase();
-      const areas = [
-        ['Salão de festas', 'party_room', 60],
-        ['Quiosque', 'kiosk', 20],
-        ['Quadra esportiva', 'sports_court', 30],
-        ['Churrasqueira', 'barbecue', 15],
-      ] as const;
-      for (const area of areas) {
-        await db.execute('INSERT OR IGNORE INTO common_areas (condominium_id, name, area_type, capacity) VALUES (?, ?, ?, ?)', [id, area[0], area[1], area[2]]);
-      }
-      const parkingCount = Math.max(1, blocks * unitsPerFloor * floors);
-      for (let i = 1; i <= parkingCount; i++) {
-        await db.execute('INSERT OR IGNORE INTO parking_spaces (condominium_id, space_code, status) VALUES (?, ?, ?)', [id, `V-${String(i).padStart(3, '0')}`, 'available']);
-      }
-      setActiveId(id);
-      setShowCreate(false);
-      setName('');
-      setAddress('');
-      setMessage('Condomínio criado no banco local. Nenhum dado foi enviado à internet.');
-      await refresh();
-      setActiveId(id);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Falha ao criar condomínio.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  const totalUnits = stats.apartments ?? 0;
-  return (
-    <div className="desktop-shell">
-      <aside className="desktop-sidebar">
-        <div className="desktop-brand"><div className="desktop-brand-mark"><Building2 size={22}/></div><div><strong>Porto Frankfurt</strong><span>Desktop · Offline</span></div></div>
-        <div className="desktop-mode"><HardDrive size={15}/><span>Banco local SQLite</span><i/></div>
-        <div className="desktop-nav-caption">GESTÃO CONDOMINIAL</div>
-        <button className="desktop-nav active"><Building2 size={18}/> Visão geral</button>
-        {modules.map(item => <button className="desktop-nav" key={item.id} onClick={() => setMessage(`O módulo ${item.label} está na fila de integração local.`)}><item.icon size={18}/>{item.label}<span className="desktop-nav-soon">Em integração</span></button>)}
-        <div className="desktop-sidebar-bottom"><Database size={17}/><span>Armazenamento neste computador</span></div>
-      </aside>
-      <main className="desktop-main">
-        <header className="desktop-topbar"><div><span className="desktop-eyebrow">AMBIENTE DE DESENVOLVIMENTO</span><h1>Central de gestão</h1></div><div className="desktop-top-actions"><span className="desktop-local-pill"><i/> Sem conexão necessária</span><div className="desktop-avatar">PF</div></div></header>
-        <section className="desktop-content">
-          {message && <div className="desktop-message"><CheckCircle2 size={17}/>{message}<button onClick={() => setMessage('')}>×</button></div>}
-          <div className="desktop-section-head"><div><h2>Seus condomínios</h2><p>Cadastre estruturas e teste operações sem tocar na produção.</p></div><button className="desktop-primary" onClick={() => setShowCreate(true)}><Plus size={17}/> Novo condomínio</button></div>
-          {loading ? <div className="desktop-empty">Preparando o banco SQLite local...</div> : condominiums.length === 0 ? (
-            <div className="desktop-welcome"><div className="desktop-welcome-icon"><Building2 size={32}/></div><h2>Seu ambiente local está pronto</h2><p>Crie um condomínio de teste. Blocos, apartamentos, áreas comuns e vagas serão gerados automaticamente.</p><button className="desktop-primary" onClick={() => setShowCreate(true)}><Plus size={17}/> Criar primeiro condomínio</button></div>
-          ) : (
-            <>
-              <div className="desktop-condo-select">
-                <label htmlFor="desktop-condo">Condomínio selecionado</label>
-                <select id="desktop-condo" value={activeId ?? ''} onChange={e => setActiveId(Number(e.target.value))}>{condominiums.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select>
-                {activeCondo && <span>{activeCondo.address || 'Endereço não informado'}</span>}
-              </div>
-              <div className="desktop-stats-grid">
-                <article><span>Unidades</span><strong>{totalUnits}</strong><small>Geradas pela estrutura</small></article>
-                <article><span>Moradores</span><strong>{stats.residents ?? 0}</strong><small>Cadastros locais</small></article>
-                <article><span>Encomendas</span><strong>{stats.packages ?? 0}</strong><small>Registros locais</small></article>
-                <article><span>Reservas</span><strong>{stats.reservations ?? 0}</strong><small>Solicitações locais</small></article>
-              </div>
-              <div className="desktop-section-head desktop-module-heading"><div><h2>Módulos do sistema</h2><p>Os próximos módulos serão conectados ao SQLite nesta versão desktop.</p></div></div>
-              <div className="desktop-module-grid">{modules.map(item => <button key={item.id} onClick={() => setMessage(`O módulo ${item.label} será habilitado na próxima etapa de integração.`)}><div><item.icon size={20}/></div><strong>{item.label}</strong><span>Preparado para integração <span>↗</span></span></button>)}</div>
-            </>
-          )}
-          <footer className="desktop-footer"><span><HardDrive size={14}/> Dados armazenados localmente</span><span>Porto Frankfurt Desktop · Versão inicial</span></footer>
-        </section>
-      </main>
-      {showCreate && <div className="desktop-modal-backdrop" onMouseDown={e => { if (e.target === e.currentTarget) setShowCreate(false); }}><form className="desktop-modal" onSubmit={handleCreate}><div className="desktop-modal-head"><div><span className="desktop-eyebrow">NOVA ESTRUTURA</span><h2>Criar condomínio de teste</h2></div><button type="button" onClick={() => setShowCreate(false)}>×</button></div><label>Nome do condomínio<input required value={name} onChange={e => setName(e.target.value)} placeholder="Ex.: Porto Frankfurt"/></label><label>Endereço<input value={address} onChange={e => setAddress(e.target.value)} placeholder="Rua, número, cidade"/></label><div className="desktop-form-grid"><label>Blocos<input type="number" min="1" max="26" value={blocks} onChange={e => setBlocks(Number(e.target.value))}/></label><label>Andares por bloco<input type="number" min="1" max="60" value={floors} onChange={e => setFloors(Number(e.target.value))}/></label><label>Apartamentos por andar<input type="number" min="1" max="30" value={unitsPerFloor} onChange={e => setUnitsPerFloor(Number(e.target.value))}/></label></div><div className="desktop-generation-note">Serão criados automaticamente <strong>{blocks * floors * unitsPerFloor} apartamentos</strong>, áreas comuns básicas e vagas de estacionamento.</div><div className="desktop-modal-actions"><button type="button" className="desktop-secondary" onClick={() => setShowCreate(false)}>Cancelar</button><button type="submit" className="desktop-primary" disabled={busy}>{busy ? 'Criando...' : 'Criar no banco local'}</button></div></form></div>}
-    </div>
-  );
+ const [condominiums,setCondominiums]=useState<LocalCondominium[]>([]),[activeId,setActiveId]=useState<number|null>(null),[stats,setStats]=useState<Stats>({});
+ const [loading,setLoading]=useState(true),[showCreate,setShowCreate]=useState(false),[name,setName]=useState('Porto Frankfurt - Ambiente de testes'),[address,setAddress]=useState('');
+ const [blocks,setBlocks]=useState(2),[floors,setFloors]=useState(4),[unitsPerFloor,setUnitsPerFloor]=useState(4),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
+ const [moduleId,setModuleId]=useState(''),[rows,setRows]=useState<LocalRow[]>([]),[options,setOptions]=useState<{apartments:Array<{id:number;block_id:number;number:string;block_name:string}>;blocks:Array<{id:number;name:string}>;areas:Array<{id:number;name:string}>}>({apartments:[],blocks:[],areas:[]});
+ const [editing,setEditing]=useState<LocalRow|null>(null),[form,setForm]=useState<LocalRow>({});
+ const activeCondo=useMemo(()=>condominiums.find(c=>c.id===activeId)??null,[condominiums,activeId]);
+ const activeModule=modules.find(m=>m.id===moduleId);
+ async function refresh(){setLoading(true);try{await getLocalDatabase();const data=await listLocalCondominiums();setCondominiums(data);const id=activeId&&data.some(c=>c.id===activeId)?activeId:data[0]?.id??null;setActiveId(id);if(id)setStats(await localDashboardStats(id));else setStats({});}catch(e){setMessage(e instanceof Error?e.message:String(e));}finally{setLoading(false);}}
+ useEffect(()=>{void refresh();},[]);
+ async function openModule(id:string){if(!activeId)return;setModuleId(id);setEditing(null);setForm({});try{const [data,opts]=await Promise.all([listLocalRows(id,activeId),listLocalOptions(activeId)]);setRows(data);setOptions(opts);}catch(e){setMessage(e instanceof Error?e.message:String(e));}}
+ async function reloadModule(){if(moduleId&&activeId){setRows(await listLocalRows(moduleId,activeId));setStats(await localDashboardStats(activeId));}}
+ async function handleCreate(event:React.FormEvent){event.preventDefault();if(!name.trim())return;setBusy(true);setMessage('');try{const id=await createLocalCondominium({name,address,blocksCount:blocks,floorsPerBlock:floors,apartmentsPerFloor:unitsPerFloor});const db=await getLocalDatabase();const areas=[['Salão de festas','party_room',60],['Quiosque','kiosk',20],['Quadra esportiva','sports_court',30],['Churrasqueira','barbecue',15]] as const;for(const area of areas)await db.execute('INSERT OR IGNORE INTO common_areas (condominium_id,name,area_type,capacity) VALUES (?,?,?,?)',[id,area[0],area[1],area[2]]);for(let i=1;i<=blocks*floors*unitsPerFloor;i++)await db.execute('INSERT OR IGNORE INTO parking_spaces (condominium_id,space_code,status) VALUES (?,?,?)',[id,`V-${String(i).padStart(3,'0')}`,'available']);setShowCreate(false);setName('');setAddress('');await refresh();setActiveId(id);setMessage('Condomínio criado localmente. Os dados permanecem neste computador.');}catch(e){setMessage(e instanceof Error?e.message:String(e));}finally{setBusy(false);}}
+ function startNew(){setEditing(null);setForm({});}
+ function editRow(row:LocalRow){setEditing(row);setForm({...row});}
+ async function saveRow(event:React.FormEvent){event.preventDefault();if(!activeId||!activeModule)return;setBusy(true);try{await saveLocalRow(activeModule.table,activeId,form,editing?.id as number|undefined);await reloadModule();setEditing(null);setForm({});setMessage('Registro salvo no banco local.');}catch(e){setMessage(e instanceof Error?e.message:String(e));}finally{setBusy(false);}}
+ async function removeRow(id:number){if(!activeId||!moduleId)return;if(!window.confirm('Excluir este registro do banco local?'))return;try{await deleteLocalRow(moduleId,activeId,id);await reloadModule();setMessage('Registro excluído.');}catch(e){setMessage(e instanceof Error?e.message:String(e));}}
+ const labelFor=(field:Field,value:any)=>{if(field.type==='apartment')return options.apartments.find(a=>a.id===Number(value))?options.apartments.find(a=>a.id===Number(value))!.block_name+' · '+options.apartments.find(a=>a.id===Number(value))!.number:value||'—';if(field.type==='block')return options.blocks.find(b=>b.id===Number(value))?.name||'—';if(field.type==='area')return options.areas.find(a=>a.id===Number(value))?.name||'—';const option=field.options?.find(o=>String(o.value)===String(value));return option?.label??(value===1?'Sim':value===0?'Não':value||'—');};
+ function renderField(field:Field){const value=form[field.key]??(field.type==='checkbox'?0:'');const common={value:String(value),onChange:(e:React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>)=>setForm(old=>({...old,[field.key]:field.type==='checkbox'?(e.target as HTMLInputElement).checked?1:0:field.type==='number'?Number(e.target.value):e.target.value}))};if(field.type==='textarea')return <textarea {...common} rows={3}/>;if(field.type==='checkbox')return <input type="checkbox" checked={Number(value)===1} onChange={e=>setForm(old=>({...old,[field.key]:e.target.checked?1:0}))}/>;if(field.type==='select')return <select {...common}><option value="">Selecione</option>{field.options?.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}</select>;if(field.type==='apartment'||field.type==='block'||field.type==='area'){const opts=field.type==='apartment'?options.apartments.map(a=>({value:a.id,label:a.block_name+' · '+a.number})):field.type==='block'?options.blocks.map(b=>({value:b.id,label:b.name})):options.areas.map(a=>({value:a.id,label:a.name}));return <select {...common}><option value="">{field.optional?'Sem vínculo':'Selecione'}</option>{opts.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}</select>;}return <input {...common} type={field.type||'text'}/>;}
+ return <div className="desktop-shell"><aside className="desktop-sidebar"><div className="desktop-brand"><div className="desktop-brand-mark"><Building2 size={22}/></div><div><strong>Porto Frankfurt</strong><span>Desktop · Offline</span></div></div><div className="desktop-mode"><HardDrive size={15}/><span>Banco local SQLite</span><i/></div><div className="desktop-nav-caption">GESTÃO CONDOMINIAL</div><button className={`desktop-nav ${!moduleId?'active':''}`} onClick={()=>setModuleId('')}><Building2 size={18}/> Visão geral</button>{modules.map(m=><button key={m.id} className={`desktop-nav ${moduleId===m.id?'active':''}`} onClick={()=>void openModule(m.id)}><m.icon size={18}/>{m.label}</button>)}<div className="desktop-sidebar-bottom"><Database size={17}/><span>Armazenamento neste computador</span></div></aside>
+ <main className="desktop-main"><header className="desktop-topbar"><div><span className="desktop-eyebrow">AMBIENTE DE DESENVOLVIMENTO</span><h1>{activeModule?.label||'Central de gestão'}</h1></div><div className="desktop-top-actions"><span className="desktop-local-pill"><i/> Offline · SQLite</span><div className="desktop-avatar">PF</div></div></header><section className="desktop-content">
+ {message&&<div className="desktop-message"><CheckCircle2 size={17}/>{message}<button onClick={()=>setMessage('')}>×</button></div>}
+ {loading?<div className="desktop-empty">Preparando o banco SQLite local...</div>:!activeCondo&&!moduleId?<div className="desktop-welcome"><div className="desktop-welcome-icon"><Building2 size={32}/></div><h2>Ambiente local pronto</h2><p>Crie seu condomínio de testes. Blocos, apartamentos, áreas comuns e vagas serão gerados automaticamente.</p><button className="desktop-primary" onClick={()=>setShowCreate(true)}><Plus size={17}/> Criar primeiro condomínio</button></div>:moduleId&&activeModule?<><div className="desktop-section-head"><div><h2>{activeModule.label}</h2><p>Cadastros independentes da produção e armazenados no SQLite.</p></div><div className="desktop-top-actions"><button className="desktop-secondary" onClick={()=>setModuleId('')}><ArrowLeft size={15}/> Painel</button><button className="desktop-primary" onClick={startNew}><Plus size={16}/> Novo registro</button></div></div>{editing!==null||Object.keys(form).length>0?<form className="desktop-modal desktop-inline-form" onSubmit={saveRow}><div className="desktop-form-grid">{activeModule.fields.map(f=><label key={f.key}>{f.label}{renderField(f)}</label>)}</div><div className="desktop-modal-actions"><button type="button" className="desktop-secondary" onClick={()=>{setEditing(null);setForm({});}}>Cancelar</button><button className="desktop-primary" disabled={busy}>{busy?'Salvando...':'Salvar registro'}</button></div></form>:null}<div className="desktop-data-list">{rows.length===0?<div className="desktop-empty">Nenhum registro neste módulo ainda.</div>:rows.map(row=><article className="desktop-data-row" key={row.id as number}><div className="desktop-data-row-main"><strong>{String(row.full_name||row.recipient_name||row.title||row.name||row.description||row.number||row.plate||row.space_code||'Registro')}</strong><span>{activeModule.fields.slice(0,3).map(f=>`${f.label}: ${labelFor(f,row[f.key])}`).join(' · ')}</span></div><div className="desktop-data-actions"><button title="Editar" onClick={()=>editRow(row)}><Pencil size={15}/></button><button title="Excluir" onClick={()=>void removeRow(Number(row.id))}><Trash2 size={15}/></button></div></article>)}</div></>:<><div className="desktop-section-head"><div><h2>Seus condomínios</h2><p>Cadastre estruturas e teste operações sem alterar a produção.</p></div><button className="desktop-primary" onClick={()=>setShowCreate(true)}><Plus size={17}/> Novo condomínio</button></div>{activeCondo&&<><div className="desktop-condo-select"><label>Condomínio selecionado</label><select value={activeId??''} onChange={e=>setActiveId(Number(e.target.value))}>{condominiums.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select><span>{activeCondo.address||'Endereço não informado'}</span></div><div className="desktop-stats-grid">{[['Unidades',stats.apartments],['Moradores',stats.residents],['Encomendas',stats.packages],['Reservas',stats.reservations]].map(([l,v])=><article key={String(l)}><span>{l}</span><strong>{Number(v)||0}</strong><small>Registros locais</small></article>)}</div><div className="desktop-section-head desktop-module-heading"><div><h2>Módulos operacionais</h2><p>Cadastros, edição e exclusão funcionando sem internet.</p></div></div><div className="desktop-module-grid">{modules.map(m=><button key={m.id} onClick={()=>void openModule(m.id)}><div><m.icon size={20}/></div><strong>{m.label}</strong><span>Abrir módulo <span>↗</span></span></button>)}</div></>}<footer className="desktop-footer"><span><HardDrive size={14}/> Dados armazenados localmente</span><span>Porto Frankfurt Desktop · Ambiente separado</span></footer></>}
+ </section></main>
+ {showCreate&&<div className="desktop-modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setShowCreate(false);}}><form className="desktop-modal" onSubmit={handleCreate}><div className="desktop-modal-head"><div><span className="desktop-eyebrow">NOVA ESTRUTURA</span><h2>Criar condomínio local</h2></div><button type="button" onClick={()=>setShowCreate(false)}>×</button></div><label>Nome do condomínio<input required value={name} onChange={e=>setName(e.target.value)}/></label><label>Endereço<input value={address} onChange={e=>setAddress(e.target.value)}/></label><div className="desktop-form-grid">{[['Blocos',blocks,setBlocks,26],['Andares por bloco',floors,setFloors,60],['Apartamentos por andar',unitsPerFloor,setUnitsPerFloor,30]].map(([label,value,setter,max])=><label key={String(label)}>{String(label)}<input type="number" min="1" max={Number(max)} value={Number(value)} onChange={e=>(setter as (n:number)=>void)(Number(e.target.value))}/></label>)}</div><div className="desktop-generation-note">Serão gerados <strong>{blocks*floors*unitsPerFloor} apartamentos</strong>, 4 áreas comuns e vagas.</div><div className="desktop-modal-actions"><button type="button" className="desktop-secondary" onClick={()=>setShowCreate(false)}>Cancelar</button><button className="desktop-primary" disabled={busy}>{busy?'Criando...':'Criar no banco local'}</button></div></form></div>}
+ </div>;
 }
