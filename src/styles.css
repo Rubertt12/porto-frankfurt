@@ -120,3 +120,15 @@
 @media(max-width:760px){.login-shell{grid-template-columns:1fr;min-height:100svh}.login-visual{min-height:340px;padding:24px 7% 28px;background-position:center 55%}.login-message{margin:36px 0 22px}.login-message h1{font-size:37px;margin:10px 0}.login-message p{font-size:11px;max-width:330px}.login-points{gap:8px;margin-top:15px;font-size:10px}.login-foot{font-size:8px}.login-panel{padding:30px 24px 26px}.login-copyright{margin-top:26px}}
 
 .auth-toggle{display:block;width:100%;border:0;background:transparent;color:var(--green);font-size:10px;font-weight:700;padding:13px 8px 2px;text-align:center}.auth-toggle:hover{text-decoration:underline}.login-form .error-box{margin:12px 0;line-height:1.5;overflow-wrap:anywhere}
+
+
+/* Resident, household and pet profile photos */
+.self-photo-row{display:flex;align-items:center;gap:16px;margin:0 0 18px;padding:14px;border:1px solid var(--line,#e5e7eb);border-radius:14px;background:var(--surface,#fff)}
+.self-photo-row>img,.self-photo-placeholder{width:76px;height:76px;flex:0 0 76px;border-radius:50%;object-fit:cover;background:var(--surface-muted,#f1f5f9);display:grid;place-items:center}
+.self-photo-row label{display:grid;gap:6px;font-weight:600}
+.self-photo-row label small{font-weight:400;color:var(--muted,#64748b)}
+.self-record-photo,.self-record-photo-placeholder{width:46px;height:46px;flex:0 0 46px;border-radius:50%;object-fit:cover;background:var(--surface-muted,#f1f5f9);display:grid;place-items:center}
+.self-records article{display:flex;align-items:center;gap:12px}
+.self-records article>div:first-of-type{min-width:0;flex:1}
+.self-records article>div:first-of-type small{display:block}
+@media(max-width:600px){.self-photo-row{align-items:flex-start}.self-photo-row>img,.self-photo-placeholder{width:64px;height:64px;flex-basis:64px}.self-records article{flex-wrap:wrap}}
