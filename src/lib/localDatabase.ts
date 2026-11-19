@@ -206,3 +206,53 @@ export async function localDashboardStats(condominiumId: number) {
   }));
   return Object.fromEntries(tables.map((table, index) => [table, values[index]]));
 }
+
+export type LocalRow = Record<string, string | number | null>;
+
+const localTableColumns: Record<string, string[]> = {
+  apartments: ['block_id','floor','number','status'],
+  residents: ['apartment_id','full_name','email','phone','document','resident_type','is_owner','is_active'],
+  packages: ['apartment_id','recipient_name','carrier','tracking_code','status','notes'],
+  reservations: ['common_area_id','apartment_id','reservation_date','start_time','end_time','status','purpose'],
+  vehicles: ['apartment_id','plate','brand','model','color'],
+  parking_spaces: ['apartment_id','space_code','status','notes'],
+  common_areas: ['name','area_type','capacity','rules','is_active'],
+  announcements: ['title','body','category','is_published'],
+  occurrences: ['apartment_id','title','description','status'],
+  financial_transactions: ['apartment_id','description','transaction_type','category','amount_cents','due_date','status']
+};
+
+export async function listLocalRows(table: string, condominiumId: number) {
+  if (!Object.prototype.hasOwnProperty.call(localTableColumns, table)) throw new Error('Módulo local não permitido.');
+  const db = await getLocalDatabase();
+  return db.select<LocalRow[]>(`SELECT * FROM ${table} WHERE condominium_id = ? ORDER BY id DESC LIMIT 500`, [condominiumId]);
+}
+
+export async function saveLocalRow(table: string, condominiumId: number, row: LocalRow, id?: number) {
+  const columns = localTableColumns[table];
+  if (!columns) throw new Error('Módulo local não permitido.');
+  const db = await getLocalDatabase();
+  const values = columns.map(column => row[column] === '' ? null : row[column] ?? null);
+  if (id) {
+    await db.execute(`UPDATE ${table} SET ${columns.map(column => `${column} = ?`).join(', ')} WHERE id = ? AND condominium_id = ?`, [...values, id, condominiumId]);
+    return id;
+  }
+  const result = await db.execute(`INSERT INTO ${table} (condominium_id, ${columns.join(', ')}) VALUES (?, ${columns.map(() => '?').join(', ')})`, [condominiumId, ...values]);
+  return result.lastInsertId;
+}
+
+export async function deleteLocalRow(table: string, condominiumId: number, id: number) {
+  if (!Object.prototype.hasOwnProperty.call(localTableColumns, table)) throw new Error('Módulo local não permitido.');
+  const db = await getLocalDatabase();
+  await db.execute(`DELETE FROM ${table} WHERE id = ? AND condominium_id = ?`, [id, condominiumId]);
+}
+
+export async function listLocalOptions(condominiumId: number) {
+  const db = await getLocalDatabase();
+  const [apartments, blocks, areas] = await Promise.all([
+    db.select<Array<{id:number; block_id:number; number:string; block_name:string}>>('SELECT a.id, a.block_id, a.number, b.name AS block_name FROM apartments a JOIN blocks b ON b.id = a.block_id WHERE a.condominium_id = ? ORDER BY b.name, a.number', [condominiumId]),
+    db.select<Array<{id:number; name:string}>>('SELECT id, name FROM blocks WHERE condominium_id = ? ORDER BY name', [condominiumId]),
+    db.select<Array<{id:number; name:string}>>('SELECT id, name FROM common_areas WHERE condominium_id = ? AND is_active = 1 ORDER BY name', [condominiumId])
+  ]);
+  return { apartments, blocks, areas };
+}
