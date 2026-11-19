@@ -17,6 +17,7 @@ WITH CHECK (profile_id = (SELECT auth.uid()));
 
 -- Resident document metadata is visible only when published and global or assigned to their unit.
 -- Existing tenant_isolation and documents_manage policies remain in force.
+DROP POLICY IF EXISTS tenant_isolation ON public.documents;
 DROP POLICY IF EXISTS documents_read_visible_or_staff ON public.documents;
 CREATE POLICY documents_read_visible_or_staff
 ON public.documents FOR SELECT TO authenticated
@@ -96,15 +97,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS bicycle_key_one_open_movement_idx
 ALTER TABLE public.bicycle_keys ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bicycle_key_movements ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS bicycle_keys_staff_manage ON public.bicycle_keys;
-CREATE POLICY bicycle_keys_staff_manage ON public.bicycle_keys FOR ALL TO authenticated
-USING (
-  can_access_condominium(condominium_id)
-  AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role])
-)
-WITH CHECK (
-  can_access_condominium(condominium_id)
-  AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role,'concierge'::condo_role,'security'::condo_role])
-);
+DROP POLICY IF EXISTS bicycle_keys_admin_manage ON public.bicycle_keys;
+CREATE POLICY bicycle_keys_admin_manage ON public.bicycle_keys FOR ALL TO authenticated
+USING (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role]))
+WITH CHECK (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['super_admin'::condo_role,'syndic'::condo_role,'administrator'::condo_role]));
+DROP POLICY IF EXISTS bicycle_keys_portaria_read ON public.bicycle_keys;
+CREATE POLICY bicycle_keys_portaria_read ON public.bicycle_keys FOR SELECT TO authenticated
+USING (can_access_condominium(condominium_id) AND has_condo_role(ARRAY['concierge'::condo_role,'security'::condo_role]));
 DROP POLICY IF EXISTS bicycle_key_movements_staff_manage ON public.bicycle_key_movements;
 CREATE POLICY bicycle_key_movements_staff_manage ON public.bicycle_key_movements FOR ALL TO authenticated
 USING (
