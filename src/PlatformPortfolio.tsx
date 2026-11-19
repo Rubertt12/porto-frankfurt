@@ -24,6 +24,7 @@ export default function PlatformPortfolio({profile,onOpen}:any){
   L(false);
  };
  useEffect(()=>{reload();},[profile?.id]);
+ useEffect(()=>{if(!supabase||!selected?.id)return;supabase.from('condominium_modules').select('module_key,enabled').eq('condominium_id',selected.id).then(({data,error})=>{if(error)E(error.message);else MD(Object.fromEntries((data||[]).map((x:any)=>[x.module_key,x.enabled])));});},[selected?.id]);
  const totals=useMemo(()=>({condos:condos.length,units:0,modules:Object.values(modules).filter(Boolean).length}),[condos,modules]);
  async function createCondo(e:any){
   e.preventDefault();if(!supabase||!profile?.id)return;S(true);E('');OK('');
