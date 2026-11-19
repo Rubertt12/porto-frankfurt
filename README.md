@@ -2,26 +2,25 @@
 
 Sistema de gestão condominial — aplicação web responsiva para administração, portaria e moradores.
 
-## Estrutura
+## Stack
+React + TypeScript + Vite · Supabase Auth/PostgreSQL/Storage/Realtime · Vercel.
 
-- `src/` — aplicação React + TypeScript + Vite
-- `src/styles/` — estilos globais e identidade visual
-- `src/components/` — componentes reutilizáveis
-- `src/features/` — módulos do condomínio
-- `supabase/migrations/` — estrutura do banco e políticas RLS
-- `public/` — ativos estáticos
+## Estrutura
+- `src/` — aplicação React
+- `src/lib/` — integração Supabase
+- `src/styles.css` — identidade visual e responsividade
+- `supabase/migrations/` — histórico versionado do banco
 
 ## Desenvolvimento
-
 ```bash
 npm install
+cp .env.example .env
 npm run dev
 ```
 
 ## Build
-
 ```bash
 npm run build
 ```
 
-As credenciais do Supabase devem ser configuradas nas variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY`. Nunca publique chaves administrativas no frontend.
+Configure `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` no ambiente. Use apenas chave publicável no navegador; nunca exponha service_role.
