@@ -105,3 +105,16 @@
 @media(max-width:760px){.portfolio-hero{align-items:flex-start;flex-direction:column;padding:19px}.portfolio-hero .primary-btn{width:100%}.portfolio-stats{grid-template-columns:1fr 1fr}.portfolio-layout{grid-template-columns:1fr}.portfolio-module-grid{grid-template-columns:1fr}.portfolio-number-grid{grid-template-columns:1fr 1fr}.portfolio-preview{flex-direction:column}.portfolio-preview span{text-align:left}}
 
 .portfolio-open-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 15px 0;font-size:9px;color:var(--muted)}.portfolio-open-row .primary-btn{padding:8px 12px;font-size:9px}
+
+
+/* Login photo and multi-condominium identity */
+.login-visual{background-image:linear-gradient(115deg,rgba(8,36,28,.88),rgba(10,49,36,.66) 54%,rgba(10,35,28,.58)),url('/porto-frankfurt-login.webp');background-size:cover;background-position:center 52%}
+.login-visual:before{content:'';position:absolute;inset:auto 0 0;height:34%;background:linear-gradient(0deg,rgba(5,24,18,.52),transparent);pointer-events:none}
+.login-visual:after{border-color:#ffffff20}
+.login-brand,.login-message,.login-foot{position:relative;z-index:2}
+.login-brand .brand-mark{box-shadow:0 4px 20px #0003}
+.login-message{max-width:560px}
+.login-message h1{font-size:clamp(38px,5vw,64px)}
+.login-panel{background:linear-gradient(145deg,#fff,#f7faf8)}
+.login-form{padding:4px}
+@media(max-width:760px){.login-shell{grid-template-columns:1fr;min-height:100svh}.login-visual{min-height:340px;padding:24px 7% 28px;background-position:center 55%}.login-message{margin:36px 0 22px}.login-message h1{font-size:37px;margin:10px 0}.login-message p{font-size:11px;max-width:330px}.login-points{gap:8px;margin-top:15px;font-size:10px}.login-foot{font-size:8px}.login-panel{padding:30px 24px 26px}.login-copyright{margin-top:26px}}
