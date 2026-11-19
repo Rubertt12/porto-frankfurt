@@ -28,6 +28,7 @@ export default function PlatformPortfolio({profile,onOpen}:any){
  const totals=useMemo(()=>({condos:condos.length,units:0,modules:Object.values(modules).filter(Boolean).length}),[condos,modules]);
  async function createCondo(e:any){
   e.preventDefault();if(!supabase||!profile?.id)return;S(true);E('');OK('');
+  const total=Number(form.blocks)*Number(form.floors)*Number(form.unitsPerFloor);if(!Number.isFinite(total)||total<1||total>3000){E('A estrutura deve gerar entre 1 e 3.000 apartamentos por condomínio.');S(false);return;}
   const slug=String(form.name).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'')+'-'+Math.random().toString(36).slice(2,6);
   const {data:condo,error:ce}=await supabase.from('condominiums').insert({name:form.name.trim(),slug,address:form.address||null,created_by:profile.id}).select().single();
   if(ce||!condo){E(ce?.message||'Não foi possível criar o condomínio.');S(false);return;}
