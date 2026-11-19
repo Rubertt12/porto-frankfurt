@@ -3,7 +3,7 @@ import { Building2, Home, Users, Package, CalendarDays, Car, Wallet, Megaphone, 
 import { createLocalCondominium, getLocalDatabase, listLocalCondominiums, localDashboardStats, listLocalRows, saveLocalRow, deleteLocalRow, listLocalOptions, type LocalCondominium, type LocalRow } from '../lib/localDatabase';
 import './localWorkspace.css';
 
-type Field = { key:string; label:string; type?:string; options?:Array<{value:string|number;label:string}> };
+type Field = { key:string; label:string; type?:string; optional?:boolean; options?:Array<{value:string|number;label:string}> };
 const modules = [
  {id:'apartments',label:'Unidades',icon:Home,table:'apartments',fields:[{key:'block_id',label:'Bloco',type:'block'},{key:'floor',label:'Andar',type:'number'},{key:'number',label:'Número'},{key:'status',label:'Situação',type:'select',options:[{value:'vacant',label:'Vago'},{value:'occupied',label:'Ocupado'}]}]},
  {id:'residents',label:'Moradores',icon:Users,table:'residents',fields:[{key:'apartment_id',label:'Unidade',type:'apartment'},{key:'full_name',label:'Nome completo'},{key:'email',label:'E-mail',type:'email'},{key:'phone',label:'Telefone'},{key:'document',label:'CPF / documento'},{key:'resident_type',label:'Vínculo',type:'select',options:[{value:'owner',label:'Proprietário'},{value:'resident',label:'Morador'},{value:'tenant',label:'Inquilino'}]},{key:'is_owner',label:'É proprietário?',type:'checkbox'}]},
