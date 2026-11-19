@@ -33,6 +33,10 @@ export default function PlatformPortfolio({profile,onOpen}:any){
   const {error:me}=await supabase.from('condominium_members').insert({condominium_id:condo.id,profile_id:profile.id,role:'syndic',is_active:true});
   if(me){E('Condomínio criado, mas o vínculo de síndico falhou: '+me.message);S(false);await reload();return;}
   await supabase.from('condominium_settings').upsert({condominium_id:condo.id,structure:{blocks:Number(form.blocks),floors:Number(form.floors),units_per_floor:Number(form.unitsPerFloor),parking_spaces:Number(form.parkingSpaces),houses:Number(form.houses)},preferences:{}});
+  const structureRows:any[]=[];
+  for(let b=1;b<=Number(form.blocks);b++){const blockName='Bloco '+b;structureRows.push({condominium_id:condo.id,structure_type:'block',name:blockName,code:String(b),quantity:1});}
+  if(structureRows.length){const {error:structureError}=await supabase.from('condominium_structure').insert(structureRows);if(structureError)E('Estrutura básica criada; não foi possível gravar o mapa modular: '+structureError.message);}
+
   const enabled=MODULES.map(([key])=>({condominium_id:condo.id,module_key:key,enabled:true}));
   const {error:modErr}=await supabase.from('condominium_modules').insert(enabled);
   const apartments:any[]=[];
