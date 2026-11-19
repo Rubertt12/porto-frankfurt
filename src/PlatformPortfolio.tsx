@@ -38,7 +38,7 @@ export default function PlatformPortfolio({profile,onOpen}:any){
   await supabase.from('condominium_settings').upsert({condominium_id:condo.id,structure:{blocks:Number(form.blocks),floors:Number(form.floors),units_per_floor:Number(form.unitsPerFloor),parking_spaces:Number(form.parkingSpaces),houses:Number(form.houses)},preferences:{}});
   const structureRows:any[]=[];
   for(let b=1;b<=Number(form.blocks);b++)structureRows.push({condominium_id:condo.id,structure_type:'block',name:'Bloco '+b,code:String(b),quantity:1,metadata:{floors:Number(form.floors),units_per_floor:Number(form.unitsPerFloor)}});
-  if(structureRows.length){const {error:structureError}=await supabase.from('condominium_structure').insert(structureRows);if(structureError)E('Estrutura básica criada; não foi possível gravar o mapa modular: '+structureError.message);}
+  if(structureRows.length){const {data:blockRows,error:structureError}=await supabase.from('condominium_structure').insert(structureRows).select('id,code');if(structureError)E('Estrutura básica criada; não foi possível gravar os blocos: '+structureError.message);else{const floors=(blockRows||[]).flatMap((block:any)=>Array.from({length:Number(form.floors)},(_,i)=>({condominium_id:condo.id,structure_type:'floor',parent_id:block.id,name:'Andar '+(i+1),code:String(i+1),quantity:Number(form.unitsPerFloor)})));if(floors.length){const {error:floorError}=await supabase.from('condominium_structure').insert(floors);if(floorError)E('Blocos criados, mas os andares precisam ser revisados: '+floorError.message);}}}
 
   const enabled=MODULES.map(([key])=>({condominium_id:condo.id,module_key:key,enabled:true}));
   const {error:modErr}=await supabase.from('condominium_modules').insert(enabled);
