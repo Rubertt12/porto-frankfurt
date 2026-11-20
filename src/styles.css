@@ -138,3 +138,18 @@
 .admin-person-photo{width:42px;height:42px;border-radius:50%;object-fit:cover;display:block;border:1px solid var(--line,#e5e7eb)}
 
 .resident-package-photo{display:block;width:min(100%,320px);max-height:240px;object-fit:cover;border-radius:12px;margin-top:10px;border:1px solid var(--line,#e5e7eb)}
+
+/* Calendário de disponibilidade das áreas comuns */
+.reservation-calendar{margin:10px 0 16px;padding:14px;border:1px solid var(--line,#dce4df);border-radius:16px;background:var(--surface,#fff)}
+.reservation-calendar-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;text-transform:capitalize}
+.reservation-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;text-align:center}
+.reservation-calendar-weekday{font-size:11px;font-weight:700;color:var(--muted,#78847d);padding:6px 0}
+.reservation-calendar-grid button{position:relative;min-height:38px;border:1px solid transparent;border-radius:10px;background:var(--surface-soft,#f3f6f4);color:var(--text,#26332c);font:inherit;cursor:pointer}
+.reservation-calendar-grid button.selected{background:var(--accent,#235c43);color:white;border-color:var(--accent,#235c43)}
+.reservation-calendar-grid button.has-booking:not(.selected){border-color:#d69b42;background:#fff4df;color:#714b13}
+.reservation-calendar-grid button:disabled{opacity:.3;cursor:not-allowed}
+.reservation-calendar-grid button i,.reservation-calendar-legend i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#d69b42;margin-left:3px;vertical-align:middle}
+.reservation-calendar-legend{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:11px;color:var(--muted,#78847d)}
+.reservation-calendar-legend .busy-dot{background:#d69b42;margin-right:5px}.reservation-calendar-legend .free-dot{background:#4b9b70;margin-right:5px}
+.reservation-day-availability{display:flex;flex-direction:column;gap:6px;padding:12px;margin:-4px 0 14px;border-radius:12px;background:var(--surface-soft,#f3f6f4);font-size:13px}
+.reservation-day-availability span{color:var(--muted,#66736b)}
