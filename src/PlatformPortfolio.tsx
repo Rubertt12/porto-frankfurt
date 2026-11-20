@@ -26,7 +26,7 @@ export default function PlatformPortfolio({profile,onOpen}:any){
   L(false);
  };
  useEffect(()=>{reload();},[profile?.id]);
- useEffect(()=>{if(!supabase||!selected?.id)return;supabase.from('condominium_modules').select('module_key,enabled').eq('condominium_id',selected.id).then(({data,error})=>{if(error)E(error.message);else MD(Object.fromEntries((data||[]).map((x:any)=>[x.module_key,x.enabled])));});},[selected?.id,selected?.address]);AD(selected?.address||'');EA(false);
+ useEffect(()=>{if(!supabase||!selected?.id)return;AD(selected.address||'');EA(false);supabase.from('condominium_modules').select('module_key,enabled').eq('condominium_id',selected.id).then(({data,error})=>{if(error)E(error.message);else MD(Object.fromEntries((data||[]).map((x:any)=>[x.module_key,x.enabled])));});},[selected?.id,selected?.address]);
  const totalUnits=useMemo(()=>condos.reduce((n,c)=>n+(unitCounts[c.id]||0),0),[condos,unitCounts]);
  async function createCondo(e:any){
   e.preventDefault();if(!supabase||!profile?.id)return;S(true);E('');OK('');
