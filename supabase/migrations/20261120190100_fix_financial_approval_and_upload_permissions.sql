@@ -4,7 +4,7 @@ CREATE POLICY financial_documents_insert ON public.financial_documents
 FOR INSERT TO authenticated
 WITH CHECK (
   public.can_access_condominium(condominium_id)
-  AND public.has_condo_role(ARRAY['super_admin'::public.condo_role,'syndic'::public.condo_role,'administrator'::public.condo_role,'financial'::public.condo_role])
+  AND public.has_condominium_role(condominium_id,ARRAY['super_admin'::public.condo_role,'syndic'::public.condo_role,'administrator'::public.condo_role,'financial'::public.condo_role])
   AND (uploaded_by IS NULL OR uploaded_by=(SELECT auth.uid()))
 );
 DROP POLICY IF EXISTS financial_documents_select_admin ON public.financial_documents;
