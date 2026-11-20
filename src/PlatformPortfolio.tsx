@@ -10,7 +10,8 @@ export default function PlatformPortfolio({profile,onOpen}:any){
  const [condos,C]=useState<Condo[]>([]),[portfolio,PF]=useState<Condo|null>(null),[modules,MD]=useState<Record<string,boolean>>({}),[selected,SEL]=useState<Condo|null>(null),[unitCounts,UC]=useState<Record<string,number>>({});
  const [loading,L]=useState(true),[saving,S]=useState(false),[showForm,F]=useState(false),[error,E]=useState(''),[success,OK]=useState('');
  const [form,V]=useState<any>({name:'',address:'',blocks:1,floors:5,unitsPerFloor:4,parkingSpaces:0,houses:0});
- const [addressDraft,AD]=useState(''),[editingAddress,EA]=useState(false),[savingAddress,SA]=useState(false);\n const [brandForm,BF]=useState<any>({login_title:'',login_message:'',primary_color:'#24784b',secondary_color:'#e8f4ec',logo_url:'',login_image_url:''}),[brandFile,BFILE]=useState<File|null>(null),[brandSaving,BS]=useState(false);
+ const [addressDraft,AD]=useState(''),[editingAddress,EA]=useState(false),[savingAddress,SA]=useState(false);
+  const [brandForm,BF]=useState<any>({login_title:'',login_message:'',primary_color:'#24784b',secondary_color:'#e8f4ec',logo_url:'',login_image_url:''}),[brandFile,BFILE]=useState<File|null>(null),[brandSaving,BS]=useState(false);
  const reload=async()=>{
   if(!supabase||!profile?.id)return;L(true);E('');
   const [pf,mem]=await Promise.all([
