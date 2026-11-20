@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import {Upload,FileText,CheckCircle2,Clock3,AlertCircle,Eye,Check,X,RefreshCw,TrendingUp,TrendingDown,Wallet,ShieldCheck} from 'lucide-react';
 import {supabase} from './lib/supabase';
+import SearchPicker from './SearchPicker';
 
 type Row=Record<string,any>;
 const money=(n:number)=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(n)||0);
