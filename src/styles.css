@@ -203,7 +203,7 @@ img{max-width:100%}
 .portfolio-map-head b{font-size:12px}
 .portfolio-map-head small{font-size:10px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
 .portfolio-map-head>.soft-btn{white-space:nowrap;flex:none}
-.portfolio-map-frame{height:270px;position:relative;overflow:hidden;border-radius:10px;background:var(--surface-soft)}
+.portfolio-map-frame{height:270px;position:relative;overflow:hidden;border-radius:10px;background:var(--surface-soft,#f3f6f4)}
 .portfolio-map-frame iframe{width:100%;height:100%;border:0}
 .portfolio-map-overlay{position:absolute;left:10px;bottom:10px;display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:8px;background:#fff;color:#24372c;font-size:10px;box-shadow:0 2px 12px #0002;pointer-events:none}
 .portfolio-map-link{display:inline-flex;align-items:center;gap:7px;margin-top:10px;color:var(--green);font-size:11px;font-weight:700;text-decoration:none}
@@ -231,15 +231,15 @@ img{max-width:100%}
 .bicycle-station-head>div:first-child{display:grid;gap:5px}
 .bicycle-station-head b{font-size:15px;color:var(--ink)}
 .bicycle-station-head small{font-size:11px;color:var(--muted)}
-.bicycle-counter{display:flex;align-items:baseline;gap:7px;padding:9px 13px;border:1px solid var(--line);border-radius:12px;background:var(--surface-soft);white-space:nowrap}
+.bicycle-counter{display:flex;align-items:baseline;gap:7px;padding:9px 13px;border:1px solid var(--line);border-radius:12px;background:var(--surface-soft,#f3f6f4);white-space:nowrap}
 .bicycle-counter strong{font-size:24px;line-height:1;color:var(--green)}
 .bicycle-counter span{font-size:10px;color:var(--muted)}
 .bicycle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:12px}
 .bicycle-card{min-width:0;padding:16px;border:1px solid var(--line);border-radius:14px;background:var(--surface);display:flex;flex-direction:column;gap:11px}
 .bicycle-card.is-available{border-color:color-mix(in srgb,var(--green) 28%,var(--line))}
-.bicycle-card.is-loaned{background:var(--surface-soft)}
+.bicycle-card.is-loaned{background:var(--surface-soft,#f3f6f4)}
 .bicycle-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.bicycle-symbol{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--surface-soft);color:var(--green)}
+.bicycle-symbol{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:var(--surface-soft,#f3f6f4);color:var(--green)}
 .bicycle-card h3{margin:0;font-size:14px;color:var(--ink)}
 .bicycle-key-label{margin:0;font-size:11px;color:var(--muted)}
 .bicycle-key-label b{color:var(--ink)}
