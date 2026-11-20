@@ -265,3 +265,11 @@ img{max-width:100%}
 .resident-photo-lightbox>small{color:#ffffffa8;font-size:10px}
 .resident-reservation-note{padding:9px 11px;border-radius:9px;background:var(--surface-soft,#f3f6f4);color:var(--text,#26332c)!important}
 .status-pill.danger{background:#fde8e7;color:#a12d28;border:1px solid #f3c7c4}
+
+
+/* Resident vehicle registration */
+.resident-vehicle-modal{width:min(520px,calc(100vw - 28px));max-height:90vh;overflow:auto}
+.resident-vehicle-modal>label,.resident-vehicle-modal .resident-time-row>label{display:flex;flex-direction:column;gap:7px;margin:14px 0;font-size:11px;font-weight:700;color:var(--text,#26332c)}
+.resident-vehicle-modal input{width:100%;box-sizing:border-box}
+.resident-vehicle-modal .resident-time-row{gap:12px}
+.resident-vehicle-space{display:flex!important;align-items:center;gap:5px;color:var(--accent,#235c43)!important;font-weight:700}
