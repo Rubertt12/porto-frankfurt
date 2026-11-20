@@ -155,3 +155,38 @@
 .reservation-day-availability span{color:var(--muted,#66736b)}
 
 .announcement-photo-control{display:grid;gap:8px;margin-top:8px}.announcement-photo-control input{height:auto;padding:9px;background:var(--bg)}.announcement-photo-control img{width:100%;max-height:220px;object-fit:contain;border:1px solid var(--line);border-radius:10px;background:var(--bg)}.announcement-photo-control small{font-size:9px;color:var(--muted);line-height:1.5}.resident-announcement-photo{display:block;width:100%;max-height:360px;object-fit:contain;object-position:center;border-radius:11px;margin-top:12px;background:var(--bg);border:1px solid var(--line)}
+
+
+/* Refinamento global de usabilidade e acessibilidade */
+:where(button,a,input,select,textarea,[tabindex]):focus-visible{outline:3px solid #8bbd9b;outline-offset:2px}
+button, a, input, select, textarea{transition:background-color .18s ease,border-color .18s ease,box-shadow .18s ease,color .18s ease}
+input:not([type=checkbox]):not([type=radio]),select,textarea{max-width:100%}
+input:disabled,select:disabled,textarea:disabled{opacity:.68;cursor:not-allowed}
+::selection{background:#cce5d3;color:#173d2c}
+.table-scroll, .table-wrap{max-width:100%;overscroll-behavior-x:contain}
+.content-card,.resident-panel,.portfolio-condo,.portfolio-module,.area-card,.stat-card{transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.content-card:hover,.resident-panel:hover{border-color:#d5e3d9}
+.modal-backdrop{backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+.modal-card{max-height:min(90vh,900px);overflow:auto;overscroll-behavior:contain}
+.modal-head{position:sticky;top:-1px;z-index:2;background:var(--surface,#fff)}
+.status-pill{line-height:1.35}
+.empty-state p{line-height:1.65}
+.form-error,.error-box{overflow-wrap:anywhere}
+img{max-width:100%}
+@media(max-width:760px){
+  .page-wrap{padding:20px 14px 28px}
+  .page-heading{align-items:flex-start;flex-direction:column;margin-bottom:18px}
+  .heading-actions,.toolbar-right{width:100%;flex-wrap:wrap}
+  .heading-actions>.primary-btn,.heading-actions>.soft-btn{flex:1}
+  .topbar{padding:0 14px}
+  .global-search{width:min(48vw,230px)}
+  .content-card{padding:15px}
+  .card-toolbar,.table-toolbar{padding:14px}
+  .table-scroll{border-radius:10px}
+  .table-scroll table{min-width:620px}
+  .modal-backdrop{align-items:flex-end;padding:10px}
+  .modal-card{width:100%;max-height:92svh;border-radius:18px 18px 12px 12px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
+}
