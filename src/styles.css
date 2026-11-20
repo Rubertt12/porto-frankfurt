@@ -153,3 +153,5 @@
 .reservation-calendar-legend .busy-dot{background:#d69b42;margin-right:5px}.reservation-calendar-legend .free-dot{background:#4b9b70;margin-right:5px}
 .reservation-day-availability{display:flex;flex-direction:column;gap:6px;padding:12px;margin:-4px 0 14px;border-radius:12px;background:var(--surface-soft,#f3f6f4);font-size:13px}
 .reservation-day-availability span{color:var(--muted,#66736b)}
+
+.announcement-photo-control{display:grid;gap:8px;margin-top:8px}.announcement-photo-control input{height:auto;padding:9px;background:var(--bg)}.announcement-photo-control img{width:100%;max-height:220px;object-fit:contain;border:1px solid var(--line);border-radius:10px;background:var(--bg)}.announcement-photo-control small{font-size:9px;color:var(--muted);line-height:1.5}.resident-announcement-photo{display:block;width:100%;max-height:360px;object-fit:contain;object-position:center;border-radius:11px;margin-top:12px;background:var(--bg);border:1px solid var(--line)}
