@@ -807,3 +807,6 @@ img,svg{max-width:100%}
 .user-profile-xclose:hover{background:var(--surface-soft,#f4f7f4);color:var(--ink,#23372c)}
 .user-profile-popover-head{padding-right:30px}
 .user-profile-dismiss{pointer-events:auto;touch-action:manipulation}
+
+.user-profile-logout{border-color:#f0d6d3!important;color:#a33b32!important;background:#fff8f7!important;font-weight:800!important}
+.user-profile-logout:hover{background:#ffefed!important;border-color:#e7b8b2!important}
