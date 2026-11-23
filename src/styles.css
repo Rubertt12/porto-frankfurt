@@ -810,3 +810,51 @@ img,svg{max-width:100%}
 
 .user-profile-logout{border-color:#f0d6d3!important;color:#a33b32!important;background:#fff8f7!important;font-weight:800!important}
 .user-profile-logout:hover{background:#ffefed!important;border-color:#e7b8b2!important}
+
+
+/* Portal do morador — cartões de áreas e acabamento mobile */
+.resident-area-card{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:start;gap:14px}
+.resident-area-card-info{min-width:0}
+.resident-area-card-info>b{display:block;overflow-wrap:anywhere}
+.resident-area-card-info>small{display:block}
+.resident-area-card-info>p{overflow-wrap:anywhere}
+.resident-area-book{align-self:center;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;border:1px solid var(--brand-primary,#176b4b);background:#eef7f0;color:var(--brand-primary,#176b4b);border-radius:10px;padding:10px 12px;font-size:12px;font-weight:750;cursor:pointer}
+.resident-area-book:hover{background:#dff0e4}
+.resident-area-card .resident-stat-icon{flex:none}
+@media(max-width:760px){
+ .resident-v2{width:100%;max-width:100%;overflow-x:clip}
+ .resident-v2 .resident-top{width:100%;box-sizing:border-box}
+ .resident-v2-content{width:100%;max-width:100%;box-sizing:border-box}
+ .resident-v2 .resident-welcome-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+ .resident-v2 .resident-welcome-row h2{font-size:20px;line-height:1.2}
+ .resident-v2 .resident-date{font-size:11px}
+ .resident-v2 .resident-v2-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .resident-v2 .resident-v2-stats>button{min-width:0;padding:13px;display:grid;grid-template-columns:36px minmax(0,1fr);column-gap:9px;align-items:center;text-align:left}
+ .resident-v2 .resident-v2-stats>button .resident-stat-icon{grid-row:span 2;width:36px;height:36px}
+ .resident-v2 .resident-v2-stats>button>b{font-size:21px;line-height:1.1}
+ .resident-v2 .resident-v2-stats>button>small{font-size:10px;line-height:1.25;overflow-wrap:anywhere}
+ .resident-v2 .resident-v2-grid{grid-template-columns:minmax(0,1fr);gap:12px}
+ .resident-v2 .resident-panel{width:100%;min-width:0;box-sizing:border-box}
+ .resident-v2 .resident-section-heading{display:flex;flex-wrap:wrap}
+ .resident-v2 .resident-section-heading>div{flex:1 1 180px}
+ .resident-v2 .resident-section-heading>button{flex:0 1 auto}
+ .resident-v2 .resident-area-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+ .resident-v2 .resident-area-card{grid-template-columns:36px minmax(0,1fr);gap:10px;padding:13px}
+ .resident-v2 .resident-area-card-info{min-width:0}
+ .resident-v2 .resident-area-card-info>p{font-size:12px;line-height:1.5;margin:7px 0}
+ .resident-v2 .resident-area-book{grid-column:2;justify-self:start;min-height:40px}
+ .resident-v2 .resident-tabs{width:100%;box-sizing:border-box}
+ .resident-v2 .resident-list-item{width:100%;box-sizing:border-box}
+ .resident-v2 .resident-list-item>div{min-width:0}
+ .resident-v2 .resident-feedback{box-sizing:border-box;width:100%;overflow-wrap:anywhere}
+ .resident-v2 .resident-bell-panel{position:fixed;top:70px;right:10px;left:10px;width:auto;max-width:none;max-height:75dvh;overflow:auto}
+}
+@media(max-width:390px){
+ .resident-v2 .resident-v2-stats{gap:7px}
+ .resident-v2 .resident-v2-stats>button{padding:10px;grid-template-columns:30px minmax(0,1fr);column-gap:7px}
+ .resident-v2 .resident-v2-stats>button .resident-stat-icon{width:30px;height:30px}
+ .resident-v2 .resident-v2-stats>button>small{font-size:9px}
+ .resident-v2 .resident-area-card{padding:11px;gap:8px}
+ .resident-v2 .resident-area-book{width:100%;justify-self:stretch}
+ .resident-v2 .resident-section-heading>button{width:100%}
+}
