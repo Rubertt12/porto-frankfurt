@@ -1,6 +1,6 @@
 import {useEffect,useMemo,useState} from 'react';
 import {supabase} from './lib/supabase';
-import {Activity,Building2,Plus,Settings2,Layers3,Home,ParkingCircle,Users,Package,CalendarDays,MessageSquare,AlertTriangle,Car,FileText,ChartNoAxesCombined,Shield,CheckCircle2,RefreshCw,MapPin,ExternalLink,Map} from 'lucide-react';
+import {Activity,Building2,Plus,Settings2,Layers3,Home,ParkingCircle,Users,Package,CalendarDays,MessageSquare,AlertTriangle,Car,FileText,ChartNoAxesCombined,Shield,CheckCircle2,RefreshCw,MapPin,ExternalLink,Map,Upload} from 'lucide-react';
 
 type Condo=Record<string,any>;
 const MODULES:any[]=[
