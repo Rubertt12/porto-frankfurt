@@ -1095,3 +1095,37 @@ img,svg{max-width:100%}
 :root[data-theme="dark"] .bicycle-key-label,:root[data-theme="dark"] .bicycle-loan-info>small{color:var(--muted)}
 :root[data-theme="dark"] .bicycle-station .status-pill.good{background:#244331;color:#bce3c6}
 :root[data-theme="dark"] .bicycle-station .status-pill.warn{background:#493b25;color:#f2d39a}
+
+
+/* Preferência de aparência exclusiva do portal do morador */
+.resident-theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;min-height:36px;padding:0 11px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font-size:10px;font-weight:700;cursor:pointer}
+.resident-theme-toggle svg{color:var(--green)}
+:root[data-theme="dark"] .resident-v2{background:#111a16;color:#e5eee8}
+:root[data-theme="dark"] .resident-v2 .resident-top{background:#19241e;border-color:#2d3b32;color:#e5eee8}
+:root[data-theme="dark"] .resident-v2 .resident-brand b{color:#edf4ef}
+:root[data-theme="dark"] .resident-v2 .resident-v2-tabs{border-color:#304036}
+:root[data-theme="dark"] .resident-v2 .resident-v2-tabs button{color:#aab9af}
+:root[data-theme="dark"] .resident-v2 .resident-v2-tabs button.active{background:#263b2e;color:#c6e6d0;border-color:#3a5944}
+:root[data-theme="dark"] .resident-v2 .resident-welcome-row h2,:root[data-theme="dark"] .resident-v2 .resident-section-heading b,:root[data-theme="dark"] .resident-v2 .resident-unit-detail b{color:#e6efe9}
+:root[data-theme="dark"] .resident-v2 .resident-date,:root[data-theme="dark"] .resident-v2 .resident-muted,:root[data-theme="dark"] .resident-v2 .resident-section-heading small,:root[data-theme="dark"] .resident-v2 .resident-member small{color:#a4b3a9}
+:root[data-theme="dark"] .resident-v2 .resident-v2-stats>button,:root[data-theme="dark"] .resident-v2 .resident-panel,:root[data-theme="dark"] .resident-v2 .resident-area-grid article,:root[data-theme="dark"] .resident-v2 .resident-notification{background:#1b2921;border-color:#304137;color:#e4eee7}
+:root[data-theme="dark"] .resident-v2 .resident-v2-stats>button>b{color:#b9e0c5}
+:root[data-theme="dark"] .resident-v2 .resident-v2-stats>button>small,:root[data-theme="dark"] .resident-v2 .resident-area-grid small,:root[data-theme="dark"] .resident-v2 .resident-area-grid p,:root[data-theme="dark"] .resident-v2 .resident-list-item small,:root[data-theme="dark"] .resident-v2 .resident-list-item p{color:#aab9af}
+:root[data-theme="dark"] .resident-v2 .resident-stat-icon,:root[data-theme="dark"] .resident-v2 .resident-avatar{background:#294334;color:#c0e5ca}
+:root[data-theme="dark"] .resident-v2 .resident-list-item,:root[data-theme="dark"] .resident-v2 .resident-unit-detail,:root[data-theme="dark"] .resident-v2 .resident-subheading{border-color:#304137}
+:root[data-theme="dark"] .resident-v2 .resident-section-heading>button{background:#294334;color:#c5e5ce}
+:root[data-theme="dark"] .resident-v2 .resident-notification.unread{background:#253b2d;border-color:#45674e}
+:root[data-theme="dark"] .resident-v2 .resident-notification p{color:#c0cdc4}
+:root[data-theme="dark"] .resident-v2 .resident-notification small{color:#9eafa4}
+:root[data-theme="dark"] .resident-v2 .resident-feedback{background:#254331;color:#c7e9d0}
+:root[data-theme="dark"] .resident-v2 .resident-feedback-error{background:#482b29;color:#ffd0c7}
+:root[data-theme="dark"] .resident-v2 .resident-bell-panel{background:#1b2921;border-color:#34483a;color:#e5eee8}
+:root[data-theme="dark"] .resident-v2 .resident-bell-item{color:#e5eee8;border-color:#304137}
+:root[data-theme="dark"] .resident-v2 .resident-bell-item small{color:#aab9af}
+:root[data-theme="dark"] .resident-v2 .resident-bell-item.unread{background:#253b2d}
+:root[data-theme="dark"] .resident-v2 .resident-bell-all{color:#c5e5ce}
+:root[data-theme="dark"] .resident-v2 .resident-theme-toggle{background:#26372c;border-color:#405747;color:#dcebe0}
+:root[data-theme="dark"] .resident-v2 .resident-theme-toggle svg{color:#e2c477}
+:root[data-theme="dark"] .resident-v2 .resident-empty-unit{background:#1b2921}
+:root[data-theme="dark"] .resident-v2 .resident-empty-unit p{color:#aab9af}
+@media(max-width:700px){.resident-theme-toggle{min-width:36px;padding:0 9px}.resident-theme-toggle span{display:none}}
