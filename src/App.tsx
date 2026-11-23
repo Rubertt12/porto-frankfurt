@@ -5,7 +5,7 @@ import PlatformPortfolio from './PlatformPortfolio';
 import FinanceCenter from './FinanceCenter';
 import SearchPicker from './SearchPicker';
 import ActivityCenter from './ActivityCenter';
-import {Activity,AlertTriangle,Bell,Building2,CalendarDays,Car,Check,ChevronDown,ChevronRight,ClipboardList,CreditCard,DoorOpen,FileText,Home,LayoutDashboard,LogOut,Menu,MessageSquare,Package,Plus,Search,Settings,Shield,Users,X,Upload,RefreshCw,ChartNoAxesCombined,ParkingCircle,UserRound,LockKeyhole,Command,ArrowUpRight} from 'lucide-react';
+import {Activity,AlertTriangle,Bell,Building2,CalendarDays,Camera,Car,Check,ChevronDown,ChevronRight,ClipboardList,CreditCard,DoorOpen,FileText,Home,LayoutDashboard,LogOut,Menu,MessageSquare,Package,Plus,Search,Settings,Shield,Users,X,Upload,RefreshCw,ChartNoAxesCombined,ParkingCircle,UserRound,LockKeyhole,Command,ArrowUpRight} from 'lucide-react';
 type R=Record<string,any>;
 const groups:any[]=[
 {title:'Plataforma',items:[['portfolio','Central de condomínios',Building2]]},
