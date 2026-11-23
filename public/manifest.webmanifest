@@ -1,0 +1,21 @@
+{
+  "id": "/",
+  "name": "Gestão Condominial",
+  "short_name": "Gestão Condo",
+  "description": "Plataforma de gestão condominial",
+  "lang": "pt-BR",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f4f7f5",
+  "theme_color": "#123c32",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
