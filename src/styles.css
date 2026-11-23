@@ -633,7 +633,7 @@ img,svg{max-width:100%}
 .portfolio-brand-form{display:grid;gap:0;padding:4px 20px 18px}
 .portfolio-brand-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:17px 0;border-bottom:1px solid var(--line,#e3e9e5)}
 .portfolio-brand-field{display:grid;gap:7px;min-width:0;color:var(--ink,#25362c);font-size:10px;font-weight:750}
-.portfolio-brand-field input{width:100%;min-width:0;box-sizing:border-box;height:42px;padding:0 12px;border:1px solid var(--line,#dce4de);border-radius:9px;background:var(--surface,#fff);color:var(--ink,#203329);font:500 11px inherit;outline:none}
+.portfolio-brand-field input{width:100%;min-width:0;box-sizing:border-box;height:42px;padding:0 12px;border:1px solid var(--line,#dce4de);border-radius:9px;background:var(--surface,#fff);color:var(--ink,#203329);font-size:11px;font-weight:500;font-family:inherit;outline:none}
 .portfolio-brand-field input:focus{border-color:var(--green,#1d604b);box-shadow:0 0 0 3px color-mix(in srgb,var(--green,#1d604b) 12%,transparent)}
 .portfolio-brand-field>small{font-size:9px;font-weight:400;color:var(--muted,#77847c);line-height:1.45}
 .portfolio-brand-colors{padding:17px 0;border-bottom:1px solid var(--line,#e3e9e5)}
