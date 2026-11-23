@@ -84,10 +84,10 @@ export default function ResidentClassifieds({userId,profile,apartment}:{userId:s
         title:draft.title.trim(),
         description:draft.description.trim(),
         category:draft.category||'Outros',
-        price:draft.price===''?null:Number(draft.price),
+        price:!draft.show_price||draft.price===''?null:Number(draft.price),
         show_price:!!draft.show_price,
         images:[...(draft.images||[]),...uploaded],
-        status:draft.status==='paused'?'available':draft.status||'available'
+        status:draft.status||'available'
       };
       const result=editingId
         ? await supabase.from('condominium_classifieds').update(payload).eq('id',editingId).eq('seller_profile_id',userId)
