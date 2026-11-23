@@ -562,3 +562,12 @@ img,svg{max-width:100%}
 .sidebar .brand-mark{background:linear-gradient(145deg,var(--brand-secondary,#eaf4ee),var(--brand-primary,#1d604b))!important;color:#fff!important}
 .primary-btn{background:var(--brand-primary,var(--green))!important}
 .primary-btn:hover{background:color-mix(in srgb,var(--brand-primary,var(--green)) 82%,#102f26)!important}
+
+/* Fotos dos moradores no Spotlight */
+.spotlight-avatar{overflow:hidden!important;border-radius:50%!important;background:var(--brand-secondary,var(--soft))!important}
+.spotlight-avatar img{width:100%;height:100%;display:block;object-fit:cover}
+.spotlight-avatar span{font-size:12px;font-weight:800;letter-spacing:.2px}
+.global-search-result-content{display:flex;align-items:center;gap:10px;min-width:0;width:100%}
+.global-search-result-content>span:last-child{display:grid;gap:3px;min-width:0}
+.spotlight-result-avatar{width:38px;height:38px;flex:0 0 38px;border-radius:50%;object-fit:cover;display:block;background:var(--brand-secondary,var(--soft))}
+.spotlight-result-initials{display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--brand-primary,var(--green))}
