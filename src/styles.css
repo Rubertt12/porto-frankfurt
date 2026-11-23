@@ -799,3 +799,11 @@ img,svg{max-width:100%}
  .resident-v2 .resident-section-heading>button{width:100%;justify-content:center}
  .resident-v2 .resident-list-item>button{width:100%;justify-content:center}
 }
+
+
+/* Fechamento explícito do menu de perfil */
+.user-profile-popover{padding-top:18px}
+.user-profile-xclose{position:absolute;right:10px;top:10px;z-index:3;width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--line,#e2e9e4);border-radius:9px;background:var(--surface,#fff);color:var(--muted,#64736a);cursor:pointer;touch-action:manipulation}
+.user-profile-xclose:hover{background:var(--surface-soft,#f4f7f4);color:var(--ink,#23372c)}
+.user-profile-popover-head{padding-right:30px}
+.user-profile-dismiss{pointer-events:auto;touch-action:manipulation}
