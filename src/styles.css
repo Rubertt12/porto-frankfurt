@@ -1064,3 +1064,34 @@ img,svg{max-width:100%}
  :root[data-theme="dark"] .topbar{background:#17231c}
  :root[data-theme="dark"] .resident-v2 .resident-top{background:#17231c;border-color:var(--line)}
 }
+
+
+/* Dark theme refinements: activity timeline and bicycle station */
+:root[data-theme="dark"] .activity-intro{background:linear-gradient(125deg,#1c2b22,#202d25);border-color:var(--line);color:var(--ink)}
+:root[data-theme="dark"] .activity-intro h2{color:var(--ink)}
+:root[data-theme="dark"] .activity-intro p,:root[data-theme="dark"] .activity-item-body p,:root[data-theme="dark"] .activity-item-heading time,:root[data-theme="dark"] .activity-footnote{color:var(--muted)}
+:root[data-theme="dark"] .activity-summary article{background:var(--surface);border-color:var(--line)}
+:root[data-theme="dark"] .activity-summary article svg{color:#9ac9a8}
+:root[data-theme="dark"] .activity-filter{border-color:var(--line)}
+:root[data-theme="dark"] .activity-filter button{background:#202d25;color:#bdc9c0;border-color:var(--line)}
+:root[data-theme="dark"] .activity-filter button.active{background:#2b4936;color:#d3ead9;border-color:#456b50}
+:root[data-theme="dark"] .activity-item{border-color:var(--line)}
+:root[data-theme="dark"] .activity-item-icon{background:#2a3d30;color:#b8d9c1}
+:root[data-theme="dark"] .activity-item-icon.occurrence{background:#482d2a;color:#ffc0b1}
+:root[data-theme="dark"] .activity-item-icon.finance{background:#26364e;color:#b8ceff}
+:root[data-theme="dark"] .activity-item-icon.visitor{background:#332d4a;color:#d0c3ff}
+:root[data-theme="dark"] .activity-item-icon.reservation{background:#463923;color:#f1d39b}
+:root[data-theme="dark"] .activity-item-meta span{background:#2a382f;color:#c0ccc3}
+:root[data-theme="dark"] .activity-item-meta strong{color:#a9d9b6}
+:root[data-theme="dark"] .activity-warning{background:#443720;color:#f0d49b;border:1px solid #66522c}
+:root[data-theme="dark"] .bicycle-counter{background:#202e25;border-color:var(--line)}
+:root[data-theme="dark"] .bicycle-counter strong{color:#a8d8b5}
+:root[data-theme="dark"] .bicycle-counter span{color:#c0ccc3}
+:root[data-theme="dark"] .bicycle-card{background:var(--surface);border-color:var(--line);color:var(--ink)}
+:root[data-theme="dark"] .bicycle-card.is-available{border-color:#3d654a}
+:root[data-theme="dark"] .bicycle-card.is-loaned{background:#202b24}
+:root[data-theme="dark"] .bicycle-symbol{background:#2a3d30;color:#a8d8b5}
+:root[data-theme="dark"] .bicycle-card h3,:root[data-theme="dark"] .bicycle-key-label b,:root[data-theme="dark"] .bicycle-loan-info>b{color:var(--ink)}
+:root[data-theme="dark"] .bicycle-key-label,:root[data-theme="dark"] .bicycle-loan-info>small{color:var(--muted)}
+:root[data-theme="dark"] .bicycle-station .status-pill.good{background:#244331;color:#bce3c6}
+:root[data-theme="dark"] .bicycle-station .status-pill.warn{background:#493b25;color:#f2d39a}
