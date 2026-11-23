@@ -858,3 +858,88 @@ img,svg{max-width:100%}
  .resident-v2 .resident-area-book{width:100%;justify-self:stretch}
  .resident-v2 .resident-section-heading>button{width:100%}
 }
+
+
+/* Portal do morador — responsividade refinada para telas pequenas, médias e ultrawide */
+.resident-v2,.resident-v2 *{min-width:0}
+.resident-v2{overflow-x:clip}
+.resident-v2-content{max-width:1600px;margin-inline:auto}
+.resident-v2 .resident-v2-grid>*,
+.resident-v2 .resident-panel,
+.resident-v2 .resident-list-item,
+.resident-v2 .resident-section-heading,
+.resident-v2 .resident-welcome-row{min-width:0}
+.resident-v2 img,.resident-v2 svg{max-width:100%}
+.resident-v2 input,.resident-v2 select,.resident-v2 textarea{max-width:100%;min-width:0}
+.resident-v2 .resident-panel table{width:100%;border-collapse:collapse}
+.resident-v2 .resident-panel :is(table,.table-wrap,.table-container){max-width:100%}
+.resident-v2 .resident-panel :is(th,td){overflow-wrap:anywhere}
+.resident-v2 .resident-list-item{display:flex;align-items:center;flex-wrap:wrap}
+.resident-v2 .resident-list-item>div{flex:1 1 220px}
+.resident-v2 .resident-list-item :is(button,a){max-width:100%;white-space:normal}
+.resident-v2 .resident-panel :is(.form-grid,.grid-2,.grid-3){grid-template-columns:repeat(2,minmax(0,1fr))}
+.resident-v2 .modal-backdrop{padding:clamp(10px,3vw,28px)}
+.resident-v2 .modal-card{width:min(680px,100%);max-height:min(90dvh,900px);overflow:auto;overscroll-behavior:contain}
+.resident-v2 .modal-card :is(input,select,textarea){width:100%;box-sizing:border-box}
+.resident-v2 .modal-card textarea{resize:vertical}
+@media(min-width:1500px){
+ .resident-v2-content{padding-left:clamp(48px,5vw,100px);padding-right:clamp(48px,5vw,100px)}
+ .resident-v2-hero{min-height:250px}
+ .resident-v2-stats>button{min-height:164px}
+}
+@media(max-width:1100px){
+ .resident-v2-content{padding-left:22px;padding-right:22px}
+ .resident-v2-grid{grid-template-columns:minmax(0,1fr)!important}
+ .resident-v2 .resident-panel{padding:20px}
+}
+@media(max-width:760px){
+ .resident-v2-content{padding:14px 12px 38px}
+ .resident-v2 .resident-top{position:sticky;top:0;z-index:40;flex-wrap:wrap}
+ .resident-v2 .resident-brand{min-width:0;flex:1 1 130px}
+ .resident-v2 .resident-top-actions{min-width:0;flex:0 1 auto}
+ .resident-v2 .resident-top-actions .user-profile-trigger-name{display:none}
+ .resident-v2 .resident-top-actions .user-profile-trigger{max-width:42px;min-width:36px;overflow:hidden}
+ .resident-v2-tabs{top:62px;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}
+ .resident-v2 .resident-panel{padding:14px}
+ .resident-v2 .resident-panel :is(.form-grid,.grid-2,.grid-3){grid-template-columns:minmax(0,1fr)}
+ .resident-v2 .resident-panel :is(input,select,textarea){width:100%;max-width:100%}
+ .resident-v2 .resident-panel :is(button,.primary-btn,.soft-btn){max-width:100%;white-space:normal}
+ .resident-v2 .resident-list-item{align-items:flex-start}
+ .resident-v2 .resident-list-item>div{flex-basis:100%}
+ .resident-v2 .resident-panel :is(.table-wrap,.table-container){overflow-x:auto;overscroll-behavior-x:contain}
+ .resident-v2 .resident-panel table{min-width:520px}
+ .resident-v2 .modal-backdrop{align-items:flex-end;padding:8px}
+ .resident-v2 .modal-card{width:100%;max-width:100%;max-height:88dvh;border-radius:18px 18px 10px 10px}
+}
+@media(max-width:480px){
+ .resident-v2 .resident-top{gap:6px;padding:8px 10px}
+ .resident-v2 .resident-brand .brand-mark{width:32px;height:32px}
+ .resident-v2 .resident-brand b{max-width:120px;font-size:8px}
+ .resident-v2 .resident-brand small{font-size:6px}
+ .resident-v2 .resident-top-actions{gap:3px}
+ .resident-v2 .resident-top-actions>.icon-btn{width:32px;height:34px}
+ .resident-v2-content{padding:12px 10px 32px}
+ .resident-v2-hero{min-height:0;padding:22px 15px 17px}
+ .resident-v2-hero h1{font-size:clamp(21px,7vw,27px);max-width:calc(100% - 58px)}
+ .resident-v2-hero p{max-width:calc(100% - 48px);font-size:11px}
+ .resident-v2 .resident-hero-profile{width:50px;height:50px;right:11px;top:16px}
+ .resident-v2-hero .resident-unit{width:100%;justify-content:flex-start;flex-wrap:wrap;overflow-wrap:anywhere}
+ .resident-v2-hero .resident-unit select{width:100%;min-width:0}
+ .resident-v2 .resident-v2-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .resident-v2 .resident-v2-stats>button{min-height:92px;padding:10px}
+ .resident-v2 .resident-panel{padding:12px;border-radius:13px}
+ .resident-v2 .resident-section-heading{flex-direction:column;align-items:stretch}
+ .resident-v2 .resident-section-heading>button{width:100%}
+ .resident-v2 .resident-time-row{grid-template-columns:minmax(0,1fr)}
+ .resident-v2 .resident-feedback{font-size:12px;padding:11px}
+ .resident-v2 .resident-bell-panel{top:58px;left:8px;right:8px;width:auto}
+}
+@media(max-width:350px){
+ .resident-v2 .resident-brand b{max-width:92px;font-size:7px}
+ .resident-v2 .resident-top-actions>.icon-btn{width:29px}
+ .resident-v2 .resident-v2-stats{grid-template-columns:minmax(0,1fr)}
+ .resident-v2 .resident-v2-stats>button{grid-template-columns:34px minmax(0,1fr)}
+ .resident-v2-hero h1,.resident-v2-hero p{max-width:100%}
+ .resident-v2 .resident-hero-profile{position:relative;right:auto;top:auto;transform:none;margin:0 0 12px}
+ .resident-v2 .resident-list-item>*{max-width:100%}
+}
