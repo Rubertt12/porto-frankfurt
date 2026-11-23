@@ -48,9 +48,11 @@ grant update(status,updated_at) on public.classified_interests to authenticated;
 grant select,insert on public.classified_conversations to authenticated;
 grant select,insert on public.classified_messages to authenticated;
 grant update(read_at) on public.classified_messages to authenticated;
+drop policy if exists classified_interests_select_participants on public.classified_interests;
 create policy classified_interests_select_participants on public.classified_interests for select to authenticated using (
  auth.uid() in (buyer_profile_id,seller_profile_id) and (can_access_condominium(condominium_id) or is_linked_to_condominium(condominium_id))
 );
+drop policy if exists classified_interests_insert_verified_resident on public.classified_interests;
 create policy classified_interests_insert_verified_resident on public.classified_interests for insert to authenticated with check (
  buyer_profile_id=auth.uid() and status='pending'
  and exists(select 1 from public.profiles p where p.id=auth.uid() and p.role='resident' and p.is_active=true)
@@ -58,22 +60,28 @@ create policy classified_interests_insert_verified_resident on public.classified
  and exists(select 1 from public.apartment_residents ar join public.resident_email_verifications v on v.profile_id=ar.profile_id and v.condominium_id=ar.condominium_id where ar.profile_id=auth.uid() and ar.apartment_id=buyer_apartment_id and ar.condominium_id=classified_interests.condominium_id and ar.move_out_date is null and v.verified_at is not null)
  and exists(select 1 from public.condominium_classifieds c join public.apartment_residents ar on ar.profile_id=c.seller_profile_id and ar.apartment_id=c.apartment_id and ar.condominium_id=c.condominium_id join public.profiles p on p.id=c.seller_profile_id and p.role='resident' and p.is_active=true join public.resident_email_verifications v on v.profile_id=c.seller_profile_id and v.condominium_id=c.condominium_id and v.verified_at is not null where c.id=classified_interests.classified_id and c.condominium_id=classified_interests.condominium_id and c.seller_profile_id=classified_interests.seller_profile_id and c.apartment_id=classified_interests.seller_apartment_id and c.status='available' and c.seller_profile_id<>auth.uid() and ar.move_out_date is null)
 );
+drop policy if exists classified_interests_update_participants on public.classified_interests;
 create policy classified_interests_update_participants on public.classified_interests for update to authenticated using(seller_profile_id=auth.uid() or buyer_profile_id=auth.uid()) with check (
  (seller_profile_id=auth.uid() and buyer_profile_id<>auth.uid() and status in ('pending','accepted','declined','cancelled'))
  or (buyer_profile_id=auth.uid() and seller_profile_id<>auth.uid() and status in ('pending','cancelled'))
 );
+drop policy if exists classified_conversations_select_participants on public.classified_conversations;
 create policy classified_conversations_select_participants on public.classified_conversations for select to authenticated using (
  auth.uid() in (buyer_profile_id,seller_profile_id) and (can_access_condominium(condominium_id) or is_linked_to_condominium(condominium_id))
 );
+drop policy if exists classified_conversations_insert_from_interest on public.classified_conversations;
 create policy classified_conversations_insert_from_interest on public.classified_conversations for insert to authenticated with check (
  auth.uid() in (buyer_profile_id,seller_profile_id) and exists(select 1 from public.classified_interests i where i.id=interest_id and i.condominium_id=classified_conversations.condominium_id and i.classified_id=classified_conversations.classified_id and i.buyer_profile_id=classified_conversations.buyer_profile_id and i.seller_profile_id=classified_conversations.seller_profile_id)
 );
+drop policy if exists classified_messages_select_participants on public.classified_messages;
 create policy classified_messages_select_participants on public.classified_messages for select to authenticated using (
  sender_profile_id=auth.uid() or exists(select 1 from public.classified_conversations c where c.id=conversation_id and auth.uid() in(c.buyer_profile_id,c.seller_profile_id) and c.condominium_id=classified_messages.condominium_id)
 );
+drop policy if exists classified_messages_insert_participants on public.classified_messages;
 create policy classified_messages_insert_participants on public.classified_messages for insert to authenticated with check (
  sender_profile_id=auth.uid() and exists(select 1 from public.classified_conversations c where c.id=conversation_id and auth.uid() in(c.buyer_profile_id,c.seller_profile_id) and c.condominium_id=classified_messages.condominium_id)
 );
+drop policy if exists classified_messages_update_participants on public.classified_messages;
 create policy classified_messages_update_participants on public.classified_messages for update to authenticated using (
  exists(select 1 from public.classified_conversations c where c.id=conversation_id and auth.uid() in(c.buyer_profile_id,c.seller_profile_id))
 ) with check (
@@ -81,6 +89,7 @@ create policy classified_messages_update_participants on public.classified_messa
 );
 alter table public.resident_notifications drop constraint if exists resident_notifications_notification_type_check;
 alter table public.resident_notifications add constraint resident_notifications_notification_type_check check(notification_type=any(array['package','fine_warning','fine','general','classified_interest']));
+drop policy if exists resident_notifications_send on public.resident_notifications;
 drop policy if exists resident_notifications_send on public.resident_notifications;
 create policy resident_notifications_send on public.resident_notifications for insert to authenticated with check (
  created_by=auth.uid() and (can_access_condominium(condominium_id) or is_linked_to_condominium(condominium_id))
