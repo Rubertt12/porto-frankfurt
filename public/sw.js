@@ -1,5 +1,5 @@
-const CACHE_NAME = 'gestao-condominial-shell-v2';
-const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/pwa-icon.svg'];
+const CACHE_NAME = 'gestao-condominial-shell-v3';
+const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/pwa-icon.svg', '/notification-badge.svg'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
@@ -13,11 +13,16 @@ self.addEventListener('push', event => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data?.text() || '' }; }
   const title = data.title || 'Gestão Condominial';
+  const appIcon = new URL('/pwa-icon.svg', self.location.origin).href;
+  const notificationBadge = new URL('/notification-badge.svg', self.location.origin).href;
   event.waitUntil(self.registration.showNotification(title, {
     body: data.body || 'Há uma nova informação no seu condomínio.',
-    icon: '/pwa-icon.svg',
-    badge: '/pwa-icon.svg',
+    icon: appIcon,
+    badge: notificationBadge,
+    image: appIcon,
     tag: data.tag || 'condominium-update',
+    timestamp: Date.now(),
+    vibrate: [180, 80, 180],
     data: { url: data.url || '/' },
     renotify: true
   }));
