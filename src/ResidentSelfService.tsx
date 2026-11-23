@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { FileText, PawPrint, Users, UserRoundCheck, Plus, Trash2, Save, RefreshCw } from 'lucide-react';
-import ResidentClassifieds from './ResidentClassifieds';
 import { supabase } from './lib/supabase';
 
 type Row = Record<string, any>;
@@ -30,7 +29,7 @@ export default function ResidentSelfService({userId,profile,apartment}:{userId:s
   const remove=async(table:string,id:string)=>{if(!supabase||!window.confirm('Deseja excluir este registro?'))return;const {error}=await supabase.from(table).delete().eq('id',id);if(error)setMessage(error.message);else{setMessage('Registro removido.');await load();}};
   const openDocument=async(doc:Row)=>{if(!doc.storage_path)return;if(/^https?:\/\//i.test(doc.storage_path)){window.open(doc.storage_path,'_blank','noopener,noreferrer');return;}const {data,error}=await supabase!.storage.from('condo-documents').createSignedUrl(doc.storage_path,3600);if(error)setMessage(error.message);else if(data?.signedUrl)window.open(data.signedUrl,'_blank','noopener,noreferrer');};
   if(!apartment)return <section className="resident-panel"><h3>Cadastro da unidade</h3><p>Seu usuário ainda não está vinculado a um apartamento. Solicite o vínculo à administração.</p></section>;
-  const tabs=[['dados','Meus dados'],['familia','Quem mora comigo ('+family.length+')'],['acessos','Autorizações ('+visitors.length+')'],['pets','Pets ('+pets.length+')'],['classificados','Classificados'],['documentos','Documentos e boletos']];
+  const tabs=[['dados','Meus dados'],['familia','Quem mora comigo ('+family.length+')'],['acessos','Autorizações ('+visitors.length+')'],['pets','Pets ('+pets.length+')'],['documentos','Documentos e boletos']];
   return <section className="resident-panel self-service">
     <div className="section-card-head"><div><b>Meu cadastro e minha unidade</b><small>Bloco {apartment.block} · Apartamento {apartment.number}</small></div><button className="soft-btn" type="button" onClick={load}><RefreshCw size={15}/> Atualizar</button></div>
     {message&&<div className="success-banner">{message}<button type="button" onClick={()=>setMessage('')}>×</button></div>}
@@ -47,7 +46,6 @@ export default function ResidentSelfService({userId,profile,apartment}:{userId:s
     {tab==='pets'&&<><h3><PawPrint size={18}/> Animais de estimação</h3><form className="self-fields" onSubmit={e=>{e.preventDefault();saveRow('unit_pets',pet,()=>setPet({}));}}>
       <label>Nome do pet<input required value={pet.name||''} onChange={e=>setPet({...pet,name:e.target.value})}/></label><label>Espécie<input required placeholder="Cão, gato, ave…" value={pet.species||''} onChange={e=>setPet({...pet,species:e.target.value})}/></label><label>Raça<input value={pet.breed||''} onChange={e=>setPet({...pet,breed:e.target.value})}/></label><label>Porte<input value={pet.size||''} onChange={e=>setPet({...pet,size:e.target.value})}/></label><label>Cor<input value={pet.color||''} onChange={e=>setPet({...pet,color:e.target.value})}/></label><label>Observações<input value={pet.notes||''} onChange={e=>setPet({...pet,notes:e.target.value})}/></label><label>Foto do animal<input type="file" accept="image/*" onChange={e=>setPet({...pet,photo_file:e.target.files?.[0]})}/></label><button className="primary-btn"><Plus size={16}/>{editing?.table==='unit_pets'?'Salvar alterações':'Adicionar pet'}</button>
     </form><div className="self-records">{pets.map(x=><article key={x.id}>{x.photo_url?<img className="self-record-photo" src={x.photo_url} alt={'Foto de '+x.name}/>:<span className="self-record-photo-placeholder"><PawPrint size={18}/></span>}<div><b>{x.name}</b><small>{x.species} · {x.breed||'Raça não informada'} · {x.size||'Porte não informado'}</small></div><div className="record-actions"><button className="soft-btn" type="button" onClick={()=>editRow('unit_pets',x,setPet)}>Editar</button><button className="icon-btn" type="button" onClick={()=>remove('unit_pets',x.id)}><Trash2 size={16}/></button></div></article>)}{!pets.length&&<p>Nenhum pet cadastrado.</p>}</div></>}
-    {tab==='classificados'&&<ResidentClassifieds userId={userId} profile={profile} apartment={apartment}/>}
     {tab==='documentos'&&<><h3><FileText size={18}/> Documentos e boletos da unidade</h3><div className="self-records">{documents.map(x=><article key={x.id}><div><b>{x.title}</b><small>{x.category} · {x.reference_month||'Sem competência'} {x.due_date?'· Vence '+new Date(x.due_date+'T12:00:00').toLocaleDateString('pt-BR'):''}</small><small>{x.description}</small></div><button className="soft-btn" onClick={()=>openDocument(x)}>Abrir documento</button></article>)}{!documents.length&&<p>Nenhum documento disponibilizado para esta unidade.</p>}</div></>}
   </section>;
 }
