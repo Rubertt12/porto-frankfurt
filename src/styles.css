@@ -571,3 +571,11 @@ img,svg{max-width:100%}
 .global-search-result-content>span:last-child{display:grid;gap:3px;min-width:0}
 .spotlight-result-avatar{width:38px;height:38px;flex:0 0 38px;border-radius:50%;object-fit:cover;display:block;background:var(--brand-secondary,var(--soft))}
 .spotlight-result-initials{display:grid;place-items:center;font-size:11px;font-weight:800;color:var(--brand-primary,var(--green))}
+
+/* Formulário de reclamações no portal do morador */
+.resident-complaint-modal textarea{height:auto!important;min-height:132px!important;padding:12px!important;resize:vertical!important;line-height:1.5}
+.resident-complaint-modal .resident-muted{line-height:1.55;margin:0 0 8px}
+.resident-empty-state{display:grid;justify-items:center;gap:8px;padding:34px 18px;text-align:center;color:var(--muted,#718078)}
+.resident-empty-state>svg{color:var(--brand-primary,var(--green));opacity:.75}
+.resident-empty-state>b{color:var(--ink);font-size:14px}
+.resident-empty-state>p{max-width:420px;margin:0;font-size:12px;line-height:1.55}
