@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gestao-condominial-shell-v1';
+const CACHE_NAME = 'gestao-condominial-shell-v2';
 const APP_SHELL = ['/', '/index.html', '/manifest.webmanifest', '/pwa-icon.svg'];
 
 self.addEventListener('install', event => {
@@ -7,6 +7,30 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
+});
+
+self.addEventListener('push', event => {
+  let data = {};
+  try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data?.text() || '' }; }
+  const title = data.title || 'Gestão Condominial';
+  event.waitUntil(self.registration.showNotification(title, {
+    body: data.body || 'Há uma nova informação no seu condomínio.',
+    icon: '/pwa-icon.svg',
+    badge: '/pwa-icon.svg',
+    tag: data.tag || 'condominium-update',
+    data: { url: data.url || '/' },
+    renotify: true
+  }));
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || '/', self.location.origin).href;
+  event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(async clients => {
+    const existing = clients.find(client => client.url.startsWith(self.location.origin));
+    if (existing) { await existing.navigate(target); return existing.focus(); }
+    return self.clients.openWindow(target);
+  }));
 });
 
 self.addEventListener('fetch', event => {
