@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Activity, AlertTriangle, Bell, CalendarDays, DoorOpen, FileText, MessageSquare, Package, RefreshCw, ShieldCheck, Wallet } from 'lucide-react';
+import { Activity, AlertTriangle, Bell, CalendarDays, DoorOpen, FileText, MessageSquare, Package, RefreshCw, Wallet } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
 type Row = Record<string, any>;
@@ -13,13 +13,12 @@ const SOURCES = [
   { table: 'announcements', kind: 'announcement', label: 'Comunicado', icon: MessageSquare, order: 'created_at' },
   { table: 'financial_transactions', kind: 'finance', label: 'Financeiro', icon: Wallet, order: 'created_at' },
   { table: 'resident_notifications', kind: 'notification', label: 'Notificação', icon: Bell, order: 'created_at' },
-  { table: 'audit_logs', kind: 'audit', label: 'Auditoria', icon: ShieldCheck, order: 'created_at' }
 ] as const;
 
 const FILTERS = [
   ['all', 'Tudo'], ['package', 'Encomendas'], ['visitor', 'Portaria'],
   ['reservation', 'Reservas'], ['occurrence', 'Ocorrências'],
-  ['announcement', 'Comunicados'], ['finance', 'Financeiro'], ['audit', 'Auditoria']
+  ['announcement', 'Comunicados'], ['finance', 'Financeiro']
 ];
 
 const dateLabel = (value: string) => {
@@ -88,7 +87,7 @@ export default function ActivityCenter({ condominiumId }: { condominiumId: strin
       <article><Activity/><b>{items.length}</b><span>Eventos recentes</span></article>
       <article><Package/><b>{counts.package || 0}</b><span>Encomendas</span></article>
       <article><AlertTriangle/><b>{counts.occurrence || 0}</b><span>Ocorrências</span></article>
-      <article><FileText/><b>{counts.audit || 0}</b><span>Registros de auditoria</span></article>
+      <article><Wallet/><b>{counts.finance || 0}</b><span>Movimentações financeiras</span></article>
     </div>
     <div className="activity-panel">
       <div className="activity-filter">{FILTERS.map(([key, label]) => <button key={key} className={filter === key ? 'active' : ''} onClick={() => setFilter(key)}>{label}</button>)}</div>
@@ -102,6 +101,6 @@ export default function ActivityCenter({ condominiumId }: { condominiumId: strin
         </article>;
       })}</div> : <div className="activity-empty">Nenhuma atividade encontrada neste filtro.</div>}
     </div>
-    <p className="activity-footnote">O histórico reúne os registros existentes. A auditoria detalhada depende de eventos gravados na tabela de auditoria.</p>
+    <p className="activity-footnote">A linha do tempo mostra atividades da operação. Alterações técnicas do banco de dados permanecem no registro interno de auditoria e não aparecem aqui.</p>
   </section>;
 }
