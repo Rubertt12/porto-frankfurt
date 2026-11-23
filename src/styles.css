@@ -510,3 +510,21 @@ img,svg{max-width:100%}
 /* Diretório de moradores da portaria e câmera do aviso de encomenda */
 .package-notice-modal{max-height:min(92vh,900px);overflow:auto}.package-notice-camera{display:grid;gap:12px;padding:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface-soft,#f7f9f7)}.package-notice-camera>div:first-child>b{display:flex;align-items:center;gap:8px;font-size:14px}.package-notice-camera>div:first-child>small{display:block;margin-top:5px;color:var(--muted);font-size:12px;line-height:1.45}.package-notice-camera video{width:100%;max-height:360px;aspect-ratio:4/3;object-fit:contain;border-radius:12px;background:#111}.package-photo-actions{display:flex;gap:8px;flex-wrap:wrap}.package-file-label{position:relative;display:inline-flex;align-items:center;justify-content:center;cursor:pointer}.package-file-label input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}.package-photo-preview{display:flex;align-items:center;gap:12px;padding:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}.package-photo-preview img{width:104px;height:104px;object-fit:cover;border-radius:9px}.package-photo-preview>div{display:grid;gap:8px}.package-photo-preview b{font-size:13px}.package-camera-error{color:#b42318;font-size:12px}.package-notice-camera label{display:grid;gap:6px;font-size:12px;font-weight:600}.package-notice-camera label input,.package-notice-camera label textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--text);font:inherit}.package-notice-modal>label{display:grid;gap:7px}
 @media(max-width:640px){.package-notice-modal{width:calc(100vw - 20px);max-height:94dvh;padding:16px}.package-photo-actions>*{flex:1;min-width:120px}.package-photo-preview img{width:88px;height:88px}}
+
+
+/* Spotlight de moradores e ações rápidas */
+.spotlight-resident-result{border-left:3px solid var(--green,#24784b);background:rgba(36,120,75,.045)}
+.spotlight-resident-card{margin:7px 3px 4px;padding:13px;border:1px solid var(--line,#dce5df);border-radius:12px;background:var(--bg,#f8faf8)}
+.spotlight-resident-heading{display:flex;align-items:center;gap:10px;min-width:0}
+.spotlight-avatar{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:11px;background:rgba(36,120,75,.12);color:var(--green,#24784b)}
+.spotlight-resident-heading>div:nth-child(2){display:grid;gap:3px;min-width:0;flex:1}
+.spotlight-resident-heading b{font-size:13px;color:var(--ink)}
+.spotlight-resident-heading small{font-size:10px;line-height:1.45;color:var(--muted);overflow-wrap:anywhere}
+.spotlight-close{width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:8px;background:transparent;color:var(--muted);cursor:pointer}
+.spotlight-close:hover{background:var(--surface)}
+.spotlight-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}
+.spotlight-actions button{min-height:58px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px 5px;border:1px solid var(--line);border-radius:9px;background:var(--surface);color:var(--ink);font-size:10px;font-weight:700;text-align:center;cursor:pointer}
+.spotlight-actions button svg{color:var(--green,#24784b)}
+.spotlight-actions button:hover{border-color:var(--green,#24784b);background:rgba(36,120,75,.06)}
+.spotlight-view-record{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:8px;padding:8px;border:0;background:transparent;color:var(--green,#24784b);font-size:10px;font-weight:700;cursor:pointer}
+@media(max-width:480px){.spotlight-actions{grid-template-columns:1fr}.spotlight-actions button{min-height:43px;flex-direction:row}.spotlight-resident-card{padding:11px}}
