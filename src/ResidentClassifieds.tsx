@@ -1,16 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Store, Search, Plus, ImagePlus, X, Tag, SlidersHorizontal, CheckCircle2, Pause, Pencil, Trash2, Flag, Eye, EyeOff } from 'lucide-react';
+import { Store, Search, Plus, ImagePlus, X, SlidersHorizontal, CheckCircle2, Pause, Pencil, Trash2, Flag, Eye } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
 type Row = Record<string, any>;
 const categories = ['Todos','Eletrônicos','Móveis e decoração','Casa e cozinha','Roupas e acessórios','Esporte e lazer','Livros e estudos','Serviços','Outros'];
-const categoryValue = (label:string) => label === 'Todos' ? '' : label.toLowerCase();
 const money = (value:any) => Number(value).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
 
 export default function ResidentClassifieds({userId,profile,apartment}:{userId:string;profile:Row;apartment:Row|null}) {
   const [rows,setRows] = useState<Row[]>([]);
-  const [sellerProfiles,setSellerProfiles] = useState<Record<string,Row>>({});
-  const [units,setUnits] = useState<Record<string,Row>>({});
   const [signedImages,setSignedImages] = useState<Record<string,string>>({});
   const [loading,setLoading] = useState(true);
   const [busy,setBusy] = useState(false);
@@ -30,14 +27,6 @@ export default function ResidentClassifieds({userId,profile,apartment}:{userId:s
     if(error){setMessage(error.message);setLoading(false);return;}
     const list = data||[];
     setRows(list);
-    const profileIds = [...new Set(list.map((x:Row)=>x.seller_profile_id).filter(Boolean))];
-    const apartmentIds = [...new Set(list.map((x:Row)=>x.apartment_id).filter(Boolean))];
-    const [p,u] = await Promise.all([
-      profileIds.length ? supabase.from('profiles').select('id,full_name,avatar_url').in('id',profileIds) : Promise.resolve({data:[] as Row[]}),
-      apartmentIds.length ? supabase.from('apartments').select('id,block,number').in('id',apartmentIds) : Promise.resolve({data:[] as Row[]})
-    ]);
-    setSellerProfiles(Object.fromEntries((p.data||[]).map((x:Row)=>[x.id,x])));
-    setUnits(Object.fromEntries((u.data||[]).map((x:Row)=>[x.id,x])));
     const paths = [...new Set(list.flatMap((x:Row)=>x.images||[]))] as string[];
     const signed = await Promise.all(paths.map(async path=>{
       const {data} = await supabase!.storage.from('classifieds').createSignedUrl(path,3600);
@@ -55,9 +44,9 @@ export default function ResidentClassifieds({userId,profile,apartment}:{userId:s
     if(mineOnly&&!own)return false;
     if(category!=='Todos'&&row.category!==category)return false;
     const q=search.trim().toLowerCase();
-    if(q&&!String(row.title+' '+row.description+' '+row.category+' '+(sellerProfiles[row.seller_profile_id]?.full_name||'')).toLowerCase().includes(q))return false;
+    if(q&&!String(row.title+' '+row.description+' '+row.category+' '+(row.seller_name||'')).toLowerCase().includes(q))return false;
     return true;
-  }),[rows,search,category,mineOnly,userId,sellerProfiles]);
+  }),[rows,search,category,mineOnly,userId]);
 
   const openNew=()=>{setEditingId(null);setPhotoFiles([]);setDraft({title:'',description:'',category:'Outros',price:'',show_price:true,status:'available',images:[]});setModal(true);};
   const openEdit=(row:Row)=>{setEditingId(row.id);setPhotoFiles([]);setDraft({...row,price:row.price??'',images:row.images||[]});setModal(true);};
@@ -90,6 +79,8 @@ export default function ResidentClassifieds({userId,profile,apartment}:{userId:s
         condominium_id:apartment.condominium_id,
         apartment_id:apartment.id,
         seller_profile_id:userId,
+        seller_name:profile?.full_name||'Morador do condomínio',
+        seller_unit_label:[apartment.block?'Bloco '+apartment.block:'',apartment.number?'Unidade '+apartment.number:''].filter(Boolean).join(' · ')||'Morador do condomínio',
         title:draft.title.trim(),
         description:draft.description.trim(),
         category:draft.category||'Outros',
@@ -143,16 +134,15 @@ export default function ResidentClassifieds({userId,profile,apartment}:{userId:s
     {message&&<div className="cl-banner">{message}<button onClick={()=>setMessage('')}><X size={15}/></button></div>}
     <div className="cl-toolbar"><div className="cl-search"><Search size={17}/><input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar produtos, serviços…"/></div><select value={category} onChange={e=>setCategory(e.target.value)} aria-label="Filtrar categoria">{categories.map(x=><option key={x}>{x}</option>)}</select><button className={'cl-toggle '+(mineOnly?'active':'')} onClick={()=>setMineOnly(v=>!v)}><SlidersHorizontal size={15}/>{mineOnly?'Meus anúncios':'Todos os anúncios'}</button></div>
     {loading?<div className="cl-empty">Carregando classificados…</div>:visibleRows.length===0?<div className="cl-empty"><Store size={30}/><b>Nenhum anúncio por aqui ainda</b><span>{mineOnly?'Você ainda não publicou anúncios.':'Seja o primeiro a publicar algo para os moradores.'}</span></div>:<div className="cl-grid">{visibleRows.map(row=>{
-      const seller=sellerProfiles[row.seller_profile_id]||{};
-      const unit=units[row.apartment_id]||{};
       const own=row.seller_profile_id===userId;
       const firstImage=(row.images||[]).map((p:string)=>signedImages[p]).find(Boolean);
-      const initials=String(seller.full_name||'Morador').split(' ').map((x:string)=>x[0]).slice(0,2).join('').toUpperCase();
+      const sellerName=row.seller_name||'Morador do condomínio';
+      const initials=String(sellerName).split(' ').map((x:string)=>x[0]).slice(0,2).join('').toUpperCase();
       return <article className="cl-card" key={row.id}>
-        <div className="cl-photo">{firstImage?<img src={firstImage} alt={row.title}/>:<ImagePlus size={34}/ >}{(row.images||[]).length>1&&<span className="cl-photo-count">+{row.images.length-1} fotos</span>}</div>
+        <div className="cl-photo">{firstImage?<img src={firstImage} alt={row.title}/>:<ImagePlus size={34}/>}{(row.images||[]).length>1&&<span className="cl-photo-count">+{row.images.length-1} fotos</span>}</div>
         <div className="cl-card-body"><div className="cl-card-top"><span className="cl-category">{row.category}</span><span className={'cl-status '+(row.status==='sold'?'sold':row.status==='paused'?'paused':'')}>{row.status==='sold'?'Vendido':row.status==='reserved'?'Reservado':row.status==='paused'?'Pausado':'Disponível'}</span></div>
           <h3>{row.title}</h3><p className="cl-desc">{row.description}</p><div className={'cl-price '+(!row.show_price||row.price===null?'muted':'')}>{row.show_price&&row.price!==null?money(row.price):'A combinar'}</div>
-          <div className="cl-seller">{seller.avatar_url?<img className="cl-avatar" src={seller.avatar_url} alt=""/>:<span className="cl-avatar">{initials}</span>}<div><b>{seller.full_name||'Morador do condomínio'}</b><small>{unit.block?'Bloco '+unit.block+' · ':''}{unit.number?'Unidade '+unit.number:'Morador'}</small></div></div>
+          <div className="cl-seller"><span className="cl-avatar">{initials}</span><div><b>{sellerName}</b><small>{row.seller_unit_label||'Morador do condomínio'}</small></div></div>
           {own?<div className="cl-actions"><button onClick={()=>openEdit(row)}><Pencil size={12}/> Editar</button>{row.status==='available'||row.status==='reserved'?<button onClick={()=>updateStatus(row,'paused')}><Pause size={12}/> Pausar</button>:<button onClick={()=>updateStatus(row,'available')}><Eye size={12}/> Reativar</button>}{row.status!=='sold'&&<button onClick={()=>updateStatus(row,'sold')}><CheckCircle2 size={12}/> Vendido</button>}<button className="danger" onClick={()=>remove(row)}><Trash2 size={12}/> Excluir</button></div>:row.status!=='sold'&&<div className="cl-actions"><button onClick={()=>report(row)}><Flag size={12}/> Denunciar anúncio</button></div>}
         </div>
       </article>;
