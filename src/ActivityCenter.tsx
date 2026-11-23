@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Activity, AlertTriangle, Bell, CalendarDays, DoorOpen, FileText, MessageSquare, Package, RefreshCw, Wallet } from 'lucide-react';
+import { Activity, AlertTriangle, Bell, CalendarDays, DoorOpen, MessageSquare, Package, RefreshCw, Wallet } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
 type Row = Record<string, any>;
