@@ -14,7 +14,7 @@ Deno.serve(async(req:Request)=>{
  if(ae||!au.user)return out({error:"Sessão inválida."},401);
  let b:any;try{b=await req.json();}catch{return out({error:"Dados inválidos."},400);}
  const cid=String(b.condominium_id||""),email=String(b.email||"").trim().toLowerCase(),name=String(b.full_name||"").trim(),phone=String(b.phone||"").trim(),role=String(b.role||"");
- if(!cid||!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!name||name.length>120||phone.length>30||!["concierge","security","financial"].includes(role))return out({error:"Informe nome, e-mail válido, telefone e função."},400);
+ if(!cid||!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)||!name||name.length>120||phone.length>30||!["administrator","concierge","security","financial"].includes(role))return out({error:"Informe nome, e-mail válido, telefone e função."},400);
  const {data:cp}=await admin.from("profiles").select("role").eq("id",au.user.id).maybeSingle();
  const {data:m,error:me}=await admin.from("condominium_members").select("role").eq("condominium_id",cid).eq("profile_id",au.user.id).eq("is_active",true).maybeSingle();
  if(!(cp?.role==="super_admin"||(!me&&["syndic","administrator"].includes(m?.role))))return out({error:"Somente o administrador do condomínio pode cadastrar funcionários."},403);
