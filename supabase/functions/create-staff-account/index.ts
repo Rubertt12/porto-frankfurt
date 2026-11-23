@@ -21,7 +21,7 @@ Deno.serve(async(req:Request)=>{
  const {data:old,error:oe}=await admin.from("profiles").select("id,full_name").ilike("email",email).maybeSingle();
  if(oe)return out({error:"Não foi possível consultar o cadastro."},500);
  let uid=old?.id||"",pass="",created=false;
- if(!uid){pass=makePass();const createdAt=new Date().toISOString();const {data:u,error:ce}=await admin.auth.admin.createUser({email,password:pass,email_confirm:true,user_metadata:{full_name:name,name},app_metadata:{must_change_password:true,temporary_password_created_at:createdAt}});
+ if(!uid){pass=makePass();const createdAt=new Date(Date.now()+5000).toISOString();const {data:u,error:ce}=await admin.auth.admin.createUser({email,password:pass,email_confirm:true,user_metadata:{full_name:name,name},app_metadata:{must_change_password:true,temporary_password_created_at:createdAt}});
  if(ce||!u.user)return out({error:ce?.message||"Não foi possível criar a conta."},400);uid=u.user.id;created=true;
  const {error:pe}=await admin.from("profiles").update({full_name:name,phone,email}).eq("id",uid);
  if(pe){await admin.auth.admin.deleteUser(uid);return out({error:"Não foi possível preparar o perfil."},500);}}
