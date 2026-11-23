@@ -581,7 +581,7 @@ img,svg{max-width:100%}
  .global-search.spotlight-open .global-search-results{max-height:calc(100dvh - 155px)!important;top:calc(100% + 9px)!important}
  .global-search.spotlight-open input{font-size:15px!important}
 }
-@media(prefers-reduced-motion:no-preference){.global-search.spotlight-open,.global-search.spotlight-open .global-search-results{animation:spotlight-appear .16s ease-out both}@keyframes spotlight-appear{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}}
+@media(prefers-reduced-motion:no-preference){.global-search.spotlight-open{animation:spotlight-fade .16s ease-out both}.global-search.spotlight-open .global-search-results{animation:spotlight-fade .16s ease-out both}@keyframes spotlight-fade{from{opacity:0}to{opacity:1}}}
 
 /* Identidade visual aplicada ao ambiente interno de cada condomínio */
 .sidebar{background:color-mix(in srgb,var(--brand-primary,#1d604b) 72%,#102f26)!important}
