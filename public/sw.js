@@ -9,14 +9,37 @@ self.addEventListener('activate', event => {
   event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim()));
 });
 
+function notificationText(value, fallback = '') {
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return fallback;
+    // Some push providers wrap the actual message in a JSON string.
+    if ((trimmed.startsWith('{') && trimmed.endsWith('}')) || (trimmed.startsWith('[') && trimmed.endsWith(']'))) {
+      try { return notificationText(JSON.parse(trimmed), fallback); } catch { return trimmed; }
+    }
+    return trimmed;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value)) return value.map(item => notificationText(item)).filter(Boolean).join(' · ') || fallback;
+  if (value && typeof value === 'object') {
+    for (const key of ['body', 'message', 'text', 'description', 'title', 'content']) {
+      if (value[key] != null && value[key] !== value) {
+        const result = notificationText(value[key], '');
+        if (result) return result;
+      }
+    }
+  }
+  return fallback;
+}
+
 self.addEventListener('push', event => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data?.text() || '' }; }
-  const title = data.title || 'Gestão Condominial';
+  const title = notificationText(data.title, 'Gestão Condominial');
   const appIcon = new URL('/pwa-icon.svg', self.location.origin).href;
   const notificationBadge = new URL('/notification-badge.svg', self.location.origin).href;
   event.waitUntil(self.registration.showNotification(title, {
-    body: data.body || 'Há uma nova informação no seu condomínio.',
+    body: notificationText(data.body, 'Há uma nova informação no seu condomínio.'),
     icon: appIcon,
     badge: notificationBadge,
     image: appIcon,
