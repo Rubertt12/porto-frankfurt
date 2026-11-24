@@ -1,6 +1,6 @@
 begin;
 
-select plan(3);
+select plan(4);
 
 select is(
   (
@@ -51,6 +51,19 @@ select ok(
       and coalesce(array_to_string(p.proconfig, ','), '') like '%search_path=""%'
   ),
   'classified interest guard trigger pins an empty search_path'
+);
+
+
+select ok(
+  not exists (
+    select 1
+    from pg_policies
+    where schemaname = 'public'
+      and tablename = 'classified_messages'
+      and cmd = 'UPDATE'
+      and roles @> array['authenticated']::name[]
+  ),
+  'authenticated users cannot rewrite classified chat messages or impersonate another sender'
 );
 
 select * from finish();
