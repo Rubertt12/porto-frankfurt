@@ -22,6 +22,7 @@ const corsHeaders = (req: Request) => {
 const out=(req:Request,v:unknown,s=200)=>new Response(JSON.stringify(v),{status:s,headers:{...corsHeaders(req),"Content-Type":"application/json"}});
 Deno.serve(async(req:Request)=>{
  if(req.method==="OPTIONS")return new Response("ok",{headers:corsHeaders(req)});
+ if(req.method!=="POST")return out(req,{error:"Método não permitido."},405);
  const token=(req.headers.get("Authorization")||"").replace(/^Bearer\s+/i,"");
  if(!token)return out(req,{error:"Sessão inválida."},401);
  const url=Deno.env.get("SUPABASE_URL")!;
