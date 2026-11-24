@@ -38,7 +38,7 @@ BEGIN
 
     SELECT string_agg(quote_ident(role_name), ', ' ORDER BY role_name)
       INTO role_list
-    FROM unnest(policy_row.roles) AS role_name;
+    FROM unnest(policy_row.roles) AS roles(role_name);
 
     EXECUTE format('DROP POLICY %I ON public.%I', policy_row.policyname, policy_row.tablename);
 
