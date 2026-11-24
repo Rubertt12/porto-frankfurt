@@ -1543,3 +1543,5 @@ img,svg{max-width:100%}
  .resident-v2-stats>button>b{font-size:24px}
  .resident-v2 .resident-panel{padding:13px}
 }
+
+.self-history-intro{margin:-5px 0 14px;color:var(--muted,#718178);font-size:12px;line-height:1.65}

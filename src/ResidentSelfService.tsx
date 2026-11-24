@@ -1,24 +1,25 @@
 import { useEffect, useState } from 'react';
-import { FileText, PawPrint, Users, UserRoundCheck, Plus, Trash2, Save, RefreshCw } from 'lucide-react';
+import { FileText, PawPrint, Users, UserRoundCheck, Plus, Trash2, Save, RefreshCw, Bike } from 'lucide-react';
 import { supabase } from './lib/supabase';
 
 type Row = Record<string, any>;
 export default function ResidentSelfService({userId,profile,apartment}:{userId:string;profile:Row;apartment:Row|null}) {
-  const [tab,setTab]=useState('dados'),[family,setFamily]=useState<Row[]>([]),[pets,setPets]=useState<Row[]>([]),[visitors,setVisitors]=useState<Row[]>([]),[documents,setDocuments]=useState<Row[]>([]);
+  const [tab,setTab]=useState('dados'),[family,setFamily]=useState<Row[]>([]),[pets,setPets]=useState<Row[]>([]),[visitors,setVisitors]=useState<Row[]>([]),[documents,setDocuments]=useState<Row[]>([]),[bicycleMovements,setBicycleMovements]=useState<Row[]>([]);
   const [privateData,setPrivateData]=useState<Row>({}),[contact,setContact]=useState({full_name:profile?.full_name||'',phone:profile?.phone||'',email:profile?.email||''}),[profilePhoto,setProfilePhoto]=useState<File|null>(null),[profilePhotoUrl,setProfilePhotoUrl]=useState(profile?.avatar_url||'');
   const [person,setPerson]=useState<Row>({}),[pet,setPet]=useState<Row>({}),[visitor,setVisitor]=useState<Row>({authorization_type:'single',is_active:true});
   const [editing,setEditing]=useState<{table:string;id:string}|null>(null),[busy,setBusy]=useState(false),[message,setMessage]=useState('');
   const signedPhoto=async(path:string|null|undefined)=>{if(!path)return '';if(path.startsWith('http://')||path.startsWith('https://'))return path;const {data}=await supabase!.storage.from('resident-photos').createSignedUrl(path,3600);return data?.signedUrl||'';};
   const load=async()=>{
     if(!supabase||!apartment?.id)return;setBusy(true);
-    const [f,p,v,d,priv]=await Promise.all([
+    const [f,p,v,d,priv,bikes]=await Promise.all([
       supabase.from('unit_family_members').select('*').eq('apartment_id',apartment.id).order('full_name'),
       supabase.from('unit_pets').select('*').eq('apartment_id',apartment.id).order('name'),
       supabase.from('authorized_visitors').select('*').eq('apartment_id',apartment.id).order('visitor_name'),
       supabase.from('documents').select('id,title,description,category,storage_path,due_date,reference_month,document_number,created_at').eq('condominium_id',apartment.condominium_id).eq('is_visible_to_residents',true).or('apartment_id.is.null,apartment_id.eq.'+apartment.id).order('created_at',{ascending:false}),
-      supabase.from('resident_private_data').select('cpf,rg,notes').eq('profile_id',userId).maybeSingle()
+      supabase.from('resident_private_data').select('cpf,rg,notes').eq('profile_id',userId).maybeSingle(),
+      supabase.from('bicycle_key_movements').select('id,issued_at,returned_at,issued_to_name,notes,bicycle_keys(key_code,description)').eq('issued_to_profile_id',userId).eq('condominium_id',apartment.condominium_id).order('issued_at',{ascending:false}).limit(50)
     ]);
-    setFamily(await Promise.all((f.data||[]).map(async x=>({...x,photo_url:await signedPhoto(x.photo_url)}))));setPets(await Promise.all((p.data||[]).map(async x=>({...x,photo_url:await signedPhoto(x.photo_url)}))));setVisitors(v.data||[]);setDocuments(d.data||[]);setPrivateData(priv.data||{});setBusy(false);
+    setFamily(await Promise.all((f.data||[]).map(async x=>({...x,photo_url:await signedPhoto(x.photo_url)}))));setPets(await Promise.all((p.data||[]).map(async x=>({...x,photo_url:await signedPhoto(x.photo_url)}))));setVisitors(v.data||[]);setDocuments(d.data||[]);setPrivateData(priv.data||{});setBicycleMovements(bikes.data||[]);setBusy(false);
   };
   useEffect(()=>{setContact({full_name:profile?.full_name||'',phone:profile?.phone||'',email:profile?.email||''});void signedPhoto(profile?.avatar_url).then(setProfilePhotoUrl);},[profile?.id,profile?.avatar_url]);
   useEffect(()=>{load();},[apartment?.id,userId]);
@@ -29,7 +30,7 @@ export default function ResidentSelfService({userId,profile,apartment}:{userId:s
   const remove=async(table:string,id:string)=>{if(!supabase||!window.confirm('Deseja excluir este registro?'))return;const {error}=await supabase.from(table).delete().eq('id',id);if(error)setMessage(error.message);else{setMessage('Registro removido.');await load();}};
   const openDocument=async(doc:Row)=>{if(!doc.storage_path)return;if(/^https?:\/\//i.test(doc.storage_path)){window.open(doc.storage_path,'_blank','noopener,noreferrer');return;}const {data,error}=await supabase!.storage.from('condo-documents').createSignedUrl(doc.storage_path,3600);if(error)setMessage(error.message);else if(data?.signedUrl)window.open(data.signedUrl,'_blank','noopener,noreferrer');};
   if(!apartment)return <section className="resident-panel"><h3>Cadastro da unidade</h3><p>Seu usuário ainda não está vinculado a um apartamento. Solicite o vínculo à administração.</p></section>;
-  const tabs=[['dados','Meus dados'],['familia','Quem mora comigo ('+family.length+')'],['acessos','Autorizações ('+visitors.length+')'],['pets','Pets ('+pets.length+')'],['documentos','Documentos e boletos']];
+  const tabs=[['dados','Meus dados'],['familia','Quem mora comigo ('+family.length+')'],['acessos','Autorizações ('+visitors.length+')'],['pets','Pets ('+pets.length+')'],['documentos','Documentos e boletos'],['bicicletario','Bicicletário ('+bicycleMovements.length+')']];
   return <section className="resident-panel self-service">
     <div className="section-card-head"><div><b>Meu cadastro e minha unidade</b><small>Bloco {apartment.block} · Apartamento {apartment.number}</small></div><button className="soft-btn" type="button" onClick={load}><RefreshCw size={15}/> Atualizar</button></div>
     {message&&<div className="success-banner">{message}<button type="button" onClick={()=>setMessage('')}>×</button></div>}
@@ -46,6 +47,7 @@ export default function ResidentSelfService({userId,profile,apartment}:{userId:s
     {tab==='pets'&&<><h3><PawPrint size={18}/> Animais de estimação</h3><form className="self-fields" onSubmit={e=>{e.preventDefault();saveRow('unit_pets',pet,()=>setPet({}));}}>
       <label>Nome do pet<input required value={pet.name||''} onChange={e=>setPet({...pet,name:e.target.value})}/></label><label>Espécie<input required placeholder="Cão, gato, ave…" value={pet.species||''} onChange={e=>setPet({...pet,species:e.target.value})}/></label><label>Raça<input value={pet.breed||''} onChange={e=>setPet({...pet,breed:e.target.value})}/></label><label>Porte<input value={pet.size||''} onChange={e=>setPet({...pet,size:e.target.value})}/></label><label>Cor<input value={pet.color||''} onChange={e=>setPet({...pet,color:e.target.value})}/></label><label>Observações<input value={pet.notes||''} onChange={e=>setPet({...pet,notes:e.target.value})}/></label><label>Foto do animal<input type="file" accept="image/*" onChange={e=>setPet({...pet,photo_file:e.target.files?.[0]})}/></label><button className="primary-btn"><Plus size={16}/>{editing?.table==='unit_pets'?'Salvar alterações':'Adicionar pet'}</button>
     </form><div className="self-records">{pets.map(x=><article key={x.id}>{x.photo_url?<img className="self-record-photo" src={x.photo_url} alt={'Foto de '+x.name}/>:<span className="self-record-photo-placeholder"><PawPrint size={18}/></span>}<div><b>{x.name}</b><small>{x.species} · {x.breed||'Raça não informada'} · {x.size||'Porte não informado'}</small></div><div className="record-actions"><button className="soft-btn" type="button" onClick={()=>editRow('unit_pets',x,setPet)}>Editar</button><button className="icon-btn" type="button" onClick={()=>remove('unit_pets',x.id)}><Trash2 size={16}/></button></div></article>)}{!pets.length&&<p>Nenhum pet cadastrado.</p>}</div></>}
+    {tab==='bicicletario'&&<><h3><Bike size={18}/> Histórico do bicicletário</h3><p className="self-history-intro">Aqui aparecem as bicicletas retiradas por você, com data da retirada e situação da devolução.</p><div className="self-records">{bicycleMovements.map(x=><article key={x.id}><span className="self-record-photo-placeholder"><Bike size={18}/></span><div><b>{x.bicycle_keys?.description||('Bicicleta '+(x.bicycle_keys?.key_code||'sem identificação'))}</b><small>Identificação: {x.bicycle_keys?.key_code||'—'} · Retirada em {x.issued_at?new Date(x.issued_at).toLocaleString('pt-BR'):'—'}</small><small>{x.returned_at?'Devolvida em '+new Date(x.returned_at).toLocaleString('pt-BR'):'Ainda está com você'}</small></div></article>)}{!bicycleMovements.length&&<p>Nenhuma retirada de bicicleta registrada para seu perfil.</p>}</div></>}
     {tab==='documentos'&&<><h3><FileText size={18}/> Documentos e boletos da unidade</h3><div className="self-records">{documents.map(x=><article key={x.id}><div><b>{x.title}</b><small>{x.category} · {x.reference_month||'Sem competência'} {x.due_date?'· Vence '+new Date(x.due_date+'T12:00:00').toLocaleDateString('pt-BR'):''}</small><small>{x.description}</small></div><button className="soft-btn" onClick={()=>openDocument(x)}>Abrir documento</button></article>)}{!documents.length&&<p>Nenhum documento disponibilizado para esta unidade.</p>}</div></>}
   </section>;
 }
