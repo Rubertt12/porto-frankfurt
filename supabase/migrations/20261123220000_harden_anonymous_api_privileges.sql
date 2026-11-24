@@ -14,6 +14,7 @@ GRANT EXECUTE ON FUNCTION public.get_public_condominium_branding(text) TO anon;
 ALTER FUNCTION public.confirm_resident_email(uuid) SET search_path = '';
 ALTER FUNCTION public.handle_new_user() SET search_path = '';
 ALTER FUNCTION public.sync_profile_email_from_auth() SET search_path = '';
+ALTER FUNCTION private.has_organization_role(uuid, text[]) SET search_path = '';
 
 -- Prevent future objects from inheriting anonymous access by default.
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
