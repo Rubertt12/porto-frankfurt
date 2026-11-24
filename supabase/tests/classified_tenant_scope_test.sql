@@ -55,15 +55,19 @@ select ok(
 
 
 select ok(
-  not exists (
+  exists (
     select 1
     from pg_policies
     where schemaname = 'public'
       and tablename = 'classified_messages'
+      and policyname = 'classified_messages_update_read_receipt'
       and cmd = 'UPDATE'
       and roles @> array['authenticated']::name[]
-  ),
-  'authenticated users cannot rewrite classified chat messages or impersonate another sender'
+  )
+  and has_column_privilege('authenticated','public.classified_messages','read_at','UPDATE')
+  and not has_column_privilege('authenticated','public.classified_messages','sender_profile_id','UPDATE')
+  and not has_column_privilege('authenticated','public.classified_messages','body','UPDATE'),
+  'participants can update read receipts but cannot rewrite message body or sender identity'
 );
 
 
