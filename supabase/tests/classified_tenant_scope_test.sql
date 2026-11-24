@@ -1,0 +1,57 @@
+begin;
+
+select plan(3);
+
+select is(
+  (
+    select count(*)::bigint
+    from pg_policies
+    where schemaname = 'public'
+      and tablename = any(array[
+        'condominium_classifieds',
+        'classified_interests',
+        'classified_conversations',
+        'classified_messages',
+        'classified_reports'
+      ])
+      and policyname = 'classified_tenant_scope_guard'
+      and permissive = 'RESTRICTIVE'
+      and cmd = 'ALL'
+      and roles @> array['authenticated']::name[]
+      and qual like '%can_access_condominium%'
+      and qual like '%is_linked_to_condominium%'
+      and with_check like '%can_access_condominium%'
+      and with_check like '%is_linked_to_condominium%'
+  ),
+  5::bigint,
+  'all classified tables have restrictive tenant guards for every operation'
+);
+
+select ok(
+  exists (
+    select 1
+    from pg_trigger t
+    join pg_class c on c.oid = t.tgrelid
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relname = 'classified_interests'
+      and t.tgname = 'classified_interests_immutable_fields'
+      and not t.tgisinternal
+  ),
+  'classified interest identity fields are protected by a before-update trigger'
+);
+
+select ok(
+  exists (
+    select 1
+    from pg_proc p
+    join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'private'
+      and p.proname = 'guard_classified_interest_immutable_fields'
+      and coalesce(array_to_string(p.proconfig, ','), '') like '%search_path=""%'
+  ),
+  'classified interest guard trigger pins an empty search_path'
+);
+
+select * from finish();
+rollback;
