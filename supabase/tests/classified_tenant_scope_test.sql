@@ -1,6 +1,6 @@
 begin;
 
-select plan(4);
+select plan(6);
 
 select is(
   (
@@ -64,6 +64,31 @@ select ok(
       and roles @> array['authenticated']::name[]
   ),
   'authenticated users cannot rewrite classified chat messages or impersonate another sender'
+);
+
+
+select ok(
+  exists (
+    select 1
+    from pg_trigger t
+    join pg_class c on c.oid = t.tgrelid
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relname = 'condominium_classifieds'
+      and t.tgname = 'classified_listing_identity_guard'
+      and not t.tgisinternal
+  ),
+  'classified listing tenant and seller identity fields are immutable'
+);
+
+select ok(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'storage'
+      and tablename = 'objects'
+      and policyname = 'classifieds_storage_update_owner'
+  ),
+  'classified storage objects cannot be moved by UPDATE between tenant folders'
 );
 
 select * from finish();
