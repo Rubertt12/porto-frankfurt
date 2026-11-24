@@ -63,6 +63,29 @@ EXECUTE FUNCTION private.guard_classified_interest_immutable_fields();
 -- and impersonate the other party. No frontend workflow updates messages.
 DROP POLICY IF EXISTS classified_messages_update_participants ON public.classified_messages;
 
+-- Keep read receipts working while column-level grants prevent editing message
+-- body or sender identity. Participants can update only read_at.
+CREATE POLICY classified_messages_update_read_receipt
+ON public.classified_messages
+FOR UPDATE
+TO authenticated
+USING (
+  EXISTS (
+    SELECT 1
+    FROM public.classified_conversations c
+    WHERE c.id = classified_messages.conversation_id
+      AND (auth.uid() = c.buyer_profile_id OR auth.uid() = c.seller_profile_id)
+  )
+)
+WITH CHECK (
+  EXISTS (
+    SELECT 1
+    FROM public.classified_conversations c
+    WHERE c.id = classified_messages.conversation_id
+      AND (auth.uid() = c.buyer_profile_id OR auth.uid() = c.seller_profile_id)
+  )
+);
+
 
 -- Classified listing ownership and tenant identity must not be mutable by the seller.
 -- Otherwise a seller linked to multiple condominiums could move a listing between
