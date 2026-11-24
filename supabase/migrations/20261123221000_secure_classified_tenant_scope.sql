@@ -62,3 +62,42 @@ EXECUTE FUNCTION private.guard_classified_interest_immutable_fields();
 -- participant UPDATE policy let either participant rewrite sender_profile_id
 -- and impersonate the other party. No frontend workflow updates messages.
 DROP POLICY IF EXISTS classified_messages_update_participants ON public.classified_messages;
+
+
+-- Classified listing ownership and tenant identity must not be mutable by the seller.
+-- Otherwise a seller linked to multiple condominiums could move a listing between
+-- tenant scopes or change the displayed seller identity.
+CREATE OR REPLACE FUNCTION private.guard_classified_listing_identity()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = ''
+AS $function$
+BEGIN
+  IF NEW.id IS DISTINCT FROM OLD.id
+    OR NEW.condominium_id IS DISTINCT FROM OLD.condominium_id
+    OR NEW.apartment_id IS DISTINCT FROM OLD.apartment_id
+    OR NEW.seller_profile_id IS DISTINCT FROM OLD.seller_profile_id
+    OR NEW.seller_name IS DISTINCT FROM OLD.seller_name
+    OR NEW.seller_unit_label IS DISTINCT FROM OLD.seller_unit_label
+    OR NEW.created_at IS DISTINCT FROM OLD.created_at
+  THEN
+    RAISE EXCEPTION 'A identidade e o condomínio do anúncio não podem ser alterados.';
+  END IF;
+
+  NEW.updated_at := now();
+  RETURN NEW;
+END;
+$function$;
+
+REVOKE ALL ON FUNCTION private.guard_classified_listing_identity() FROM PUBLIC, anon;
+
+DROP TRIGGER IF EXISTS classified_listing_identity_guard ON public.condominium_classifieds;
+CREATE TRIGGER classified_listing_identity_guard
+BEFORE UPDATE ON public.condominium_classifieds
+FOR EACH ROW
+EXECUTE FUNCTION private.guard_classified_listing_identity();
+
+-- The application uploads classified images with upsert:false and never updates
+-- storage object metadata. Removing UPDATE prevents moving an existing object
+-- to another condominium folder where that tenant could then read it.
+DROP POLICY IF EXISTS classifieds_storage_update_owner ON storage.objects;
