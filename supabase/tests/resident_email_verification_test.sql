@@ -1,6 +1,6 @@
 begin;
 
-select plan(3);
+select plan(4);
 
 select ok(
   not has_column_privilege('authenticated','public.resident_email_verifications','token','SELECT')
@@ -29,6 +29,23 @@ select ok(
       and qual like '%condominium_id%'
   ),
   'condominium administrators can read verification status only within their own condominium'
+);
+
+
+select ok(
+  exists (
+    select 1
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'resident_email_verifications'
+      and column_name = 'expires_at'
+      and is_nullable = 'NO'
+  )
+  and position(
+    'expires_at > now()'
+    in pg_get_functiondef('public.confirm_resident_email(uuid)'::regprocedure)
+  ) > 0,
+  'resident email verification tokens expire after 24 hours'
 );
 
 select * from finish();
