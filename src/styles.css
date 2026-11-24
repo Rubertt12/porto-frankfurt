@@ -1545,3 +1545,69 @@ img,svg{max-width:100%}
 }
 
 .self-history-intro{margin:-5px 0 14px;color:var(--muted,#718178);font-size:12px;line-height:1.65}
+
+
+/* Comunicados na visão geral do morador */
+.resident-overview-announcements{min-width:0}
+.resident-overview-announcements-head{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:15px}
+.resident-overview-announcements-title{display:flex;align-items:center;gap:11px;min-width:0}
+.resident-overview-announcements-title>span{display:grid;place-items:center;flex:none;width:39px;height:39px;border-radius:12px;background:#eaf4ec;color:#286447}
+.resident-overview-announcements-title>div{display:grid;gap:4px;min-width:0}
+.resident-overview-announcements-title b{font:800 15px Manrope,sans-serif;color:var(--ink,#20332d)}
+.resident-overview-announcements-title small{font-size:10px;color:var(--muted,#7a8981);line-height:1.45}
+.resident-overview-announcements-head>button{display:inline-flex;align-items:center;gap:4px;flex:none;padding:9px 11px;border:1px solid #dce9df;border-radius:10px;background:#f0f6f1;color:#286044;font-size:10px;font-weight:800}
+.resident-overview-announcement-list{display:grid;gap:10px}
+.resident-overview-announcement{min-width:0;padding:14px;border:1px solid var(--line,#e5ece7);border-radius:15px;background:var(--surface,#fff);transition:border-color .18s,box-shadow .18s,transform .18s}
+.resident-overview-announcement:hover{border-color:#c8ddce;box-shadow:0 8px 22px #173b2b0b;transform:translateY(-1px)}
+.resident-overview-announcement.is-urgent{border-left:3px solid #c84b48}
+.resident-overview-announcement.is-important{border-left:3px solid #d69a36}
+.resident-overview-announcement.featured{padding:16px}
+.resident-overview-announcement-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+.resident-overview-announcement-meta time{flex:none;color:var(--muted,#87948c);font-size:9px;font-weight:650}
+.resident-overview-announcement-category{display:inline-flex;align-items:center;gap:5px;max-width:72%;padding:5px 8px;border-radius:999px;background:#edf5ef;color:#356c4b;font-size:9px;font-weight:850;overflow-wrap:anywhere}
+.resident-overview-announcement-category.is-urgent{background:#fff0ef;color:#b53f3b}
+.resident-overview-announcement-category.is-important{background:#fff5e7;color:#a66b1c}
+.resident-overview-announcement-main{display:flex;align-items:flex-start;gap:13px;min-width:0}
+.resident-overview-announcement-copy{flex:1;min-width:0}
+.resident-overview-announcement-copy h3{margin:0;color:var(--ink,#20332d);font:800 13px/1.4 Manrope,sans-serif;letter-spacing:-.2px;overflow-wrap:anywhere}
+.resident-overview-announcement.featured .resident-overview-announcement-copy h3{font-size:15px}
+.resident-overview-announcement-copy p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;margin:6px 0 9px;color:var(--muted,#66776d);font-size:11px;line-height:1.65;white-space:pre-line;overflow-wrap:anywhere}
+.resident-overview-announcement.featured .resident-overview-announcement-copy p{-webkit-line-clamp:3}
+.resident-overview-announcement-author{display:inline-flex;align-items:center;gap:5px;color:var(--muted,#87948c);font-size:9px;font-weight:650}
+.resident-overview-announcement-image{position:relative;display:block;flex:none;width:104px;height:82px;padding:0;overflow:hidden;border:1px solid var(--line,#e5ece7);border-radius:11px;background:var(--bg,#f6f9f7);cursor:zoom-in}
+.resident-overview-announcement.featured .resident-overview-announcement-image{width:132px;height:108px}
+.resident-overview-announcement-image img{display:block;width:100%;height:100%;object-fit:cover}
+.resident-overview-announcement-image>span{position:absolute;right:6px;bottom:6px;display:grid;place-items:center;width:25px;height:25px;border-radius:8px;background:#10241ccc;color:#fff}
+.resident-overview-announcements-empty{display:flex;align-items:center;gap:11px;padding:17px;border:1px dashed var(--line,#dce6df);border-radius:14px;background:var(--bg,#f8faf8)}
+.resident-overview-announcements-empty>span{display:grid;place-items:center;flex:none;width:38px;height:38px;border-radius:12px;background:#edf5ef;color:#477b59}
+.resident-overview-announcements-empty>div{display:grid;gap:4px}
+.resident-overview-announcements-empty b{font-size:11px;color:var(--ink,#20332d)}
+.resident-overview-announcements-empty small{font-size:10px;line-height:1.5;color:var(--muted,#819088)}
+:root[data-theme="dark"] .resident-overview-announcements-title>span,:root[data-theme="dark"] .resident-overview-announcements-empty>span{background:#294334;color:#c0e5ca}
+:root[data-theme="dark"] .resident-overview-announcements-head>button{background:#294334;border-color:#405a47;color:#c0e5ca}
+:root[data-theme="dark"] .resident-overview-announcement{background:#1b2921;border-color:#34473a}
+:root[data-theme="dark"] .resident-overview-announcement:hover{border-color:#52765b}
+:root[data-theme="dark"] .resident-overview-announcement-copy h3,:root[data-theme="dark"] .resident-overview-announcements-title b,:root[data-theme="dark"] .resident-overview-announcements-empty b{color:#e9f2eb}
+:root[data-theme="dark"] .resident-overview-announcement-category{background:#294334;color:#c0e5ca}
+:root[data-theme="dark"] .resident-overview-announcement-category.is-urgent{background:#482c2b;color:#ffc3bd}
+:root[data-theme="dark"] .resident-overview-announcement-category.is-important{background:#493a29;color:#f0c27e}
+@media(max-width:760px){
+ .resident-overview-announcements-head{align-items:flex-start}
+ .resident-overview-announcements-title>span{width:35px;height:35px}
+ .resident-overview-announcements-title b{font-size:13px}
+ .resident-overview-announcements-title small{font-size:9px}
+ .resident-overview-announcements-head>button{padding:8px 9px;font-size:9px}
+ .resident-overview-announcement{padding:12px}
+ .resident-overview-announcement.featured{padding:13px}
+ .resident-overview-announcement-image{width:82px;height:72px}
+ .resident-overview-announcement.featured .resident-overview-announcement-image{width:94px;height:82px}
+ .resident-overview-announcement-copy h3{font-size:12px}
+ .resident-overview-announcement.featured .resident-overview-announcement-copy h3{font-size:13px}
+ .resident-overview-announcement-copy p{font-size:10px}
+}
+@media(max-width:380px){
+ .resident-overview-announcement-main{gap:9px}
+ .resident-overview-announcement-image{width:70px;height:66px}
+ .resident-overview-announcement.featured .resident-overview-announcement-image{width:78px;height:74px}
+ .resident-overview-announcement-meta{align-items:flex-start}
+}
