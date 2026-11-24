@@ -2,14 +2,14 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 const allowedOrigins = new Set([
   "https://porto-frankfurt.vercel.app",
   "https://porto-frankfurt-git-main-rubertts-projects.vercel.app",
+  "https://porto-frankfurt-git-security-hardening-rubertts-projects.vercel.app",
   "http://localhost:5173",
   "http://localhost:4173",
   "http://127.0.0.1:5173",
   "http://127.0.0.1:4173",
 ]);
 const isAllowedOrigin = (origin: string) =>
-  allowedOrigins.has(origin) ||
-  /^https:\/\/porto-frankfurt-[a-z0-9-]+-rubertts-projects\.vercel\.app$/.test(origin);
+  allowedOrigins.has(origin);
 const corsHeaders = (req: Request) => {
   const origin = req.headers.get("Origin") || "";
   return {
