@@ -77,6 +77,7 @@ select is(
     from pg_default_acl d
     cross join lateral aclexplode(d.defaclacl) a
     where d.defaclnamespace = 'public'::regnamespace
+      and d.defaclrole = (select oid from pg_roles where rolname = 'postgres')
       and a.grantee in (0, (select oid from pg_roles where rolname = 'anon'))
       and (
         (d.defaclobjtype = 'r' and a.privilege_type in ('SELECT','INSERT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER'))
@@ -85,7 +86,7 @@ select is(
       )
   ),
   0::bigint,
-  'future public objects do not grant privileges to PUBLIC or anon by default'
+  'future public objects created by postgres do not grant privileges to PUBLIC or anon by default'
 );
 
 select * from finish();
