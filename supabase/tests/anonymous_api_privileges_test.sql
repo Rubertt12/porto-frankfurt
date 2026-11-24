@@ -5,28 +5,44 @@ select plan(6);
 select is(
   (
     select count(*)::bigint
-    from information_schema.role_table_grants
-    where table_schema = 'public'
-      and grantee = 'anon'
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relkind in ('r','p','v','m','f')
+      and (
+        has_table_privilege('anon', c.oid, 'SELECT')
+        or has_table_privilege('anon', c.oid, 'INSERT')
+        or has_table_privilege('anon', c.oid, 'UPDATE')
+        or has_table_privilege('anon', c.oid, 'DELETE')
+        or has_table_privilege('anon', c.oid, 'TRUNCATE')
+        or has_table_privilege('anon', c.oid, 'REFERENCES')
+        or has_table_privilege('anon', c.oid, 'TRIGGER')
+      )
   ),
   0::bigint,
-  'anon has no direct table/view privileges in public'
+  'anon has no table/view privileges in public, including inherited PUBLIC grants'
 );
 
 select is(
   (
     select count(*)::bigint
-    from information_schema.role_usage_grants
-    where object_schema = 'public'
-      and grantee = 'anon'
+    from pg_class c
+    join pg_namespace n on n.oid = c.relnamespace
+    where n.nspname = 'public'
+      and c.relkind = 'S'
+      and (
+        has_sequence_privilege('anon', c.oid, 'USAGE')
+        or has_sequence_privilege('anon', c.oid, 'SELECT')
+        or has_sequence_privilege('anon', c.oid, 'UPDATE')
+      )
   ),
   0::bigint,
-  'anon has no sequence usage privileges in public'
+  'anon has no sequence privileges in public'
 );
 
 select ok(
   has_function_privilege('anon', 'public.get_public_condominium_branding(text)', 'EXECUTE'),
-  'anon can execute only the public branding RPC'
+  'anon can execute the public branding RPC'
 );
 
 select is(
