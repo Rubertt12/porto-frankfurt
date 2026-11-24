@@ -56,3 +56,9 @@ CREATE TRIGGER classified_interests_immutable_fields
 BEFORE UPDATE ON public.classified_interests
 FOR EACH ROW
 EXECUTE FUNCTION private.guard_classified_interest_immutable_fields();
+
+
+-- Message rows are append-only in the current application. The previous
+-- participant UPDATE policy let either participant rewrite sender_profile_id
+-- and impersonate the other party. No frontend workflow updates messages.
+DROP POLICY IF EXISTS classified_messages_update_participants ON public.classified_messages;
