@@ -1,6 +1,6 @@
 begin;
 
-select plan(4);
+select plan(5);
 
 select ok(
   not has_column_privilege('authenticated','public.resident_email_verifications','token','SELECT')
@@ -46,6 +46,25 @@ select ok(
     in pg_get_functiondef('public.confirm_resident_email(uuid)'::regprocedure)
   ) > 0,
   'resident email verification tokens expire after 24 hours'
+);
+
+
+select ok(
+  not exists (
+    select 1 from pg_policies
+    where schemaname = 'storage'
+      and tablename = 'objects'
+      and policyname = 'resident_photos_update'
+  )
+  and exists (
+    select 1 from pg_policies
+    where schemaname = 'storage'
+      and tablename = 'objects'
+      and policyname = 'resident_photos_delete'
+      and qual like '%owner_id%'
+      and qual like '%has_condominium_role%'
+  ),
+  'residents cannot update or delete another apartment member photo; own-file deletion and same-condo admin deletion remain'
 );
 
 select * from finish();
