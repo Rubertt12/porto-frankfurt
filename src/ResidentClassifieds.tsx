@@ -103,8 +103,11 @@ export default function ResidentClassifieds({userId,profile,apartment}:{userId:s
         images:[...(draft.images||[]),...uploaded],
         status:draft.status||'available'
       };
+      const updatePayload={...payload};
+      delete updatePayload.seller_name;
+      delete updatePayload.seller_unit_label;
       const result=editingId
-        ? await supabase.from('condominium_classifieds').update(payload).eq('id',editingId).eq('seller_profile_id',userId)
+        ? await supabase.from('condominium_classifieds').update(updatePayload).eq('id',editingId).eq('seller_profile_id',userId)
         : await supabase.from('condominium_classifieds').insert(payload);
       if(result.error)throw result.error;
       setModal(false);setEditingId(null);setPhotoFiles([]);setMessage(editingId?'Anúncio atualizado.':'Anúncio publicado com sucesso.');await load();
