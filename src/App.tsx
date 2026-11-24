@@ -252,7 +252,7 @@ const markRead=async(n:any)=>{if(!supabase||n.is_read)return;const {error}=await
  </div>
  <div className="resident-announcements-section-head"><div><span className="resident-announcements-kicker">MURAL GERAL</span><h3>Avisos do condomínio</h3><p>Publicações compartilhadas com os moradores.</p></div><span className="resident-announcements-count">{announcements.length}</span></div>
  <div className="resident-announcements-feed">
-  {announcements.length?announcements.map((a:any,index:number)=>{const category=String(a.category||'Comunicado');const normalized=category.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();const urgent=/urgente|emergencia|critico/.test(normalized);const important=/importante|atencao/.test(normalized);return <article className={'resident-announcement-card '+(urgent?'is-urgent':important?'is-important':'')} key={a.id}>
+  {announcements.length?announcements.map((a:any,index:number)=>{const category=String(a.category||'Comunicado');const normalized=category.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();const urgent=/urgente|emergencia|critico/.test(normalized);const important=/importante|atencao/.test(normalized);return <article className={'resident-announcement-card '+(urgent?'is-urgent':important?'is-important':'')} key={a.id}>
    <div className="resident-announcement-card-top"><span className={'resident-announcement-category '+(urgent?'is-urgent':important?'is-important':'')}>{urgent&&<AlertTriangle size={13}/>} {category}</span><time>{date(a.published_at||a.created_at)}</time></div>
    <h4>{a.title||'Comunicado do condomínio'}</h4>
    <p className="resident-announcement-body">{a.body}</p>
